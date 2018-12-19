@@ -16,23 +16,32 @@ import {
 
 // insert click to call button
 export const insertClickToCallButton = [
-  /*
+  ///*
   {
     // must match page url
     urlCheck: href => {
-      return href.includes('xxxx')
+      return /\/person\/\d+/.test(href)
     },
 
     // define in the page how to get phone number,
     // if can not get phone number, will not insert the call button
     // support async
     getContactPhoneNumbers: async () => {
-      let phones = document.querySelectorAll('.contact [data-display-type="PHONE"]')
-      return [{
-        id: 'xxx',
-        title: 'yyy',
-        number: 'xx-xxx-xxx'
-      }]
+      let phones = document.querySelectorAll('.viewContainer:not([style*="none"]) [data-test="phone-label"]')
+      return Array.from(phones).map(p => {
+        let title = p.parentNode.nextSibling.textContent.trim()
+        let id = title
+        let number = p.textContent.trim()
+        if (checkPhoneNumber(number)) {
+          return {
+            id,
+            title,
+            number
+          }
+        } else {
+          return null
+        }
+      }).filter(d => d)
     },
 
     // parent dom to insert call button
@@ -41,16 +50,13 @@ export const insertClickToCallButton = [
     parentsToInsertButton: [
       {
         getElem: () => {
-          return document.querySelector('#modal-details-body header .btn-toolbar')
+          return document.querySelector('.viewContainer:not([style*="none"]) .detailView.personDetails .infoBlock .spacer')
         },
-        insertMethod: 'insertBefore',
-        shouldInsert: () => {
-          return !document.querySelector('#modal-details-body header .btn-toolbar .' + RCBTNCLS2)
-        }
+        insertMethod: 'insertBefore'
       }
     ]
   }
-  */
+  //*/
 ]
 
 // hover contact node to show click to dial tooltip
