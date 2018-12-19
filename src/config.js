@@ -9,7 +9,7 @@
 
 ///*
 import {
-  RCBTNCLS2,
+  //RCBTNCLS2,
   checkPhoneNumber
 } from 'ringcentral-embeddable-extension-common/src/common/helpers'
 //*/
