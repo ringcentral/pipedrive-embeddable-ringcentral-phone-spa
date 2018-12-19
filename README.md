@@ -90,5 +90,3 @@ Created with [Embbnux Ji](https://github.com/embbnux)'s tuturial:
 ## License
 
 MIT
-
-  
