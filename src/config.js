@@ -7,12 +7,12 @@
  *
  */
 
-/*
+///*
 import {
   RCBTNCLS2,
   checkPhoneNumber
 } from 'ringcentral-embeddable-extension-common/src/common/helpers'
-*/
+//*/
 
 // insert click to call button
 export const insertClickToCallButton = [
@@ -55,30 +55,34 @@ export const insertClickToCallButton = [
 
 // hover contact node to show click to dial tooltip
 export const hoverShowClickToCallButton = [
-  /*
+  ///*
   //config example
   {
     // must match url
     urlCheck: href => {
-      return href.includes('list/Contact/')
+      return /\/persons\/list\/user\/\d+/.test(href)
     },
 
     //elemment selector
-    selector: '#entity-list table tbody tr',
+    selector: '.gridContent--scrollable .gridContent__table tbody tr',
 
     // function to get phone numbers, suport async function
     getContactPhoneNumbers: async elem => {
-      let phoneNode = elem.querySelector('td.PHONE')
-      ...
-      let numbers = await getNumbers(ids)
-      return [{
-        id: 'xxx',
-        title: 'yyy',
-        number: 'xx-xxx-xxx'
-      }]
+      let phoneNodes = elem.querySelectorAll('td[data-field="phone"] .gridCell__link')
+      return Array.from(phoneNodes)
+        .map((p, i) => {
+          let number = (p.getAttribute('href') || '').replace('callto:', '')
+          let title = p.querySelector('.gridCell__valueRemark')
+          title = title ? title.textContent.replace(/\(|\)/g, '') : 'Direct'
+          return {
+            id: 'p_' + i,
+            title,
+            number
+          }
+        }).filter(d => checkPhoneNumber(d.number))
     }
   }
-  */
+  //*/
 ]
 
 // modify phone number text to click-to-call link
