@@ -94,17 +94,6 @@ export const phoneNumberSelectors = [
 ]
 
 /**
- * method to get user unique id, could be email, since it is unique
- */
-export function getUserId() {
-  return ''
-  /* example config
-  let arr = document.body.textContent.match(/email: '(.+)'/)
-  return arr ? arr[1] || '' : ''
-  */
-}
-
-/**
  * thirdPartyService config
  * @param {*} serviceName
  */
