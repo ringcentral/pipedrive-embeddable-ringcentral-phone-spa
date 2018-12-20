@@ -31,6 +31,10 @@ import {
   hideContactInfoPanel,
   getContacts
 } from './features/contacts'
+import {
+  getActivities,
+  showActivityDetail
+} from './features/activities'
 
 // insert click to call button
 export const insertClickToCallButton = [
@@ -140,15 +144,15 @@ export function thirdPartyServiceConfig(serviceName) {
     authorizationPath: '/authorize',
     authorizedTitle: 'Unauthorize',
     unauthorizedTitle: 'Authorize',
-    authorized: false
+    authorized: false,
 
     // // Enable call log sync feature
     // callLoggerPath: '/callLogger',
     // callLoggerTitle: `Log to ${serviceName}`,
 
-    // // show contact activities in ringcentral widgets
-    // activitiesPath: '/activities',
-    // activityPath: '/activity'
+    // show contact activities in ringcentral widgets
+    activitiesPath: '/activities',
+    activityPath: '/activity'
   }
 
   // handle ringcentral event
@@ -242,33 +246,33 @@ export function thirdPartyServiceConfig(serviceName) {
     //       response: { data: 'ok' }
     //     })
     //   }
-    //   else if (path === '/activities') {
-    //     const activities = await getActivities(data.body)
-    //     /*
-    //     [
-    //       {
-    //         id: '123',
-    //         subject: 'Title',
-    //         time: 1528854702472
-    //       }
-    //     ]
-    //     */
-    //     // response to widget
-    //     rc.postMessage({
-    //       type: 'rc-post-message-response',
-    //       responseId: data.requestId,
-    //       response: { data: activities }
-    //     })
-    //   }
-    //   else if (path === '/activity') {
-    //     // response to widget
-    //     showActivityDetail(data.body)
-    //     rc.postMessage({
-    //       type: 'rc-post-message-response',
-    //       responseId: data.requestId,
-    //       response: { data: 'ok' }
-    //     })
-    //   }
+    else if (path === '/activities') {
+      const activities = await getActivities(data.body)
+      /*
+      [
+        {
+          id: '123',
+          subject: 'Title',
+          time: 1528854702472
+        }
+      ]
+      */
+      // response to widget
+      rc.postMessage({
+        type: 'rc-post-message-response',
+        responseId: data.requestId,
+        response: { data: activities }
+      })
+    }
+    else if (path === '/activity') {
+      // response to widget
+      showActivityDetail(data.body)
+      rc.postMessage({
+        type: 'rc-post-message-response',
+        responseId: data.requestId,
+        response: { data: 'ok' }
+      })
+    }
   }
   return {
     services,
