@@ -14,6 +14,24 @@ import {
 } from 'ringcentral-embeddable-extension-common/src/common/helpers'
 //*/
 
+import _ from 'lodash'
+import {
+  showAuthBtn,
+  unAuth,
+  doAuth,
+  notifyRCAuthed,
+  renderAuthButton
+} from './features/auth'
+import * as ls from 'ringcentral-embeddable-extension-common/src/common/ls'
+
+import {
+  findMatchContacts,
+  searchContacts,
+  showContactInfoPanel,
+  hideContactInfoPanel,
+  getContacts
+} from './features/contacts'
+
 // insert click to call button
 export const insertClickToCallButton = [
   ///*
@@ -109,20 +127,20 @@ export const phoneNumberSelectors = [
  */
 export function thirdPartyServiceConfig(serviceName) {
 
-  console.log(serviceName)
+  console.log(serviceName, 'serviceName')
 
   let services = {
-    name: serviceName
+    name: serviceName,
     // // show contacts in ringcentral widgets
-    // contactsPath: '/contacts',
-    // contactSearchPath: '/contacts/search',
-    // contactMatchPath: '/contacts/match',
+    contactsPath: '/contacts',
+    contactSearchPath: '/contacts/search',
+    contactMatchPath: '/contacts/match',
 
-    // // show auth/auauth button in ringcentral widgets
-    // authorizationPath: '/authorize',
-    // authorizedTitle: 'Unauthorize',
-    // unauthorizedTitle: 'Authorize',
-    // authorized: false,
+    // show auth/auauth button in ringcentral widgets
+    authorizationPath: '/authorize',
+    authorizedTitle: 'Unauthorize',
+    unauthorizedTitle: 'Authorize',
+    authorized: false
 
     // // Enable call log sync feature
     // callLoggerPath: '/callLogger',
@@ -136,84 +154,84 @@ export function thirdPartyServiceConfig(serviceName) {
   // handle ringcentral event
   let handleRCEvents = async e => {
     console.log(e)
-    //   let {data} = e
-    //   if (!data) {
-    //     return
-    //   }
-    //   let {type, loggedIn, path, call} = data
-    //   if (type ===  'rc-login-status-notify') {
-    //     console.log('rc logined', loggedIn)
-    //     window.rc.rcLogined = loggedIn
-    //   }
-    //   if (
-    //     type === 'rc-route-changed-notify' &&
-    //     path === '/contacts' &&
-    //     !window.rc.local.apiKey
-    //   ) {
-    //     showAuthBtn()
-    //   } else if (
-    //     type === 'rc-active-call-notify' ||
-    //     type === 'rc-call-start-notify'
-    //   ) {
-    //     showContactInfoPanel(call)
-    //   } else if ('rc-call-end-notify' === type) {
-    //     hideContactInfoPanel()
-    //   }
-    //   if (type !== 'rc-post-message-request') {
-    //     return
-    //   }
-    
-    //   let {rc} = window
-    
-    //   if (data.path === '/authorize') {
-    //     if (rc.local.apiKey) {
-    //       unAuth()
-    //     } else {
-    //       doAuth()
-    //     }
-    //     rc.postMessage({
-    //       type: 'rc-post-message-response',
-    //       responseId: data.requestId,
-    //       response: { data: 'ok' }
-    //     })
-    //   }
-    //   else if (path === '/contacts') {
-    //     let contacts = await getContacts()
-    //     rc.postMessage({
-    //       type: 'rc-post-message-response',
-    //       responseId: data.requestId,
-    //       response: {
-    //         data: contacts,
-    //         nextPage: null
-    //       }
-    //     })
-    //   }
-    //   else if (path === '/contacts/search') {
-    //     let contacts = await getContacts()
-    //     let keyword = _.get(data, 'body.searchString')
-    //     if (keyword) {
-    //       contacts = searchContacts(contacts, keyword)
-    //     }
-    //     rc.postMessage({
-    //       type: 'rc-post-message-response',
-    //       responseId: data.requestId,
-    //       response: {
-    //         data: contacts
-    //       }
-    //     })
-    //   }
-    //   else if (path === '/contacts/match') {
-    //     let contacts = await getContacts()
-    //     let phoneNumbers = _.get(data, 'body.phoneNumbers') || []
-    //     let res = findMatchContacts(contacts, phoneNumbers)
-    //     rc.postMessage({
-    //       type: 'rc-post-message-response',
-    //       responseId: data.requestId,
-    //       response: {
-    //         data: res
-    //       }
-    //     })
-    //   }
+    let {data} = e
+    if (!data) {
+      return
+    }
+    let {type, loggedIn, path, call} = data
+    if (type ===  'rc-login-status-notify') {
+      console.log('rc logined', loggedIn)
+      window.rc.rcLogined = loggedIn
+    }
+    if (
+      type === 'rc-route-changed-notify' &&
+      path === '/contacts' &&
+      !window.rc.userAuthed
+    ) {
+      showAuthBtn()
+    } else if (
+      type === 'rc-active-call-notify' ||
+      type === 'rc-call-start-notify'
+    ) {
+      showContactInfoPanel(call)
+    } else if ('rc-call-end-notify' === type) {
+      hideContactInfoPanel()
+    }
+    if (type !== 'rc-post-message-request') {
+      return
+    }
+
+    let {rc} = window
+
+    if (data.path === '/authorize') {
+      if (rc.userAuthed) {
+        unAuth()
+      } else {
+        doAuth()
+      }
+      rc.postMessage({
+        type: 'rc-post-message-response',
+        responseId: data.requestId,
+        response: { data: 'ok' }
+      })
+    }
+    else if (path === '/contacts') {
+      let contacts = await getContacts()
+      rc.postMessage({
+        type: 'rc-post-message-response',
+        responseId: data.requestId,
+        response: {
+          data: contacts,
+          nextPage: null
+        }
+      })
+    }
+    else if (path === '/contacts/search') {
+      let contacts = await getContacts()
+      let keyword = _.get(data, 'body.searchString')
+      if (keyword) {
+        contacts = searchContacts(contacts, keyword)
+      }
+      rc.postMessage({
+        type: 'rc-post-message-response',
+        responseId: data.requestId,
+        response: {
+          data: contacts
+        }
+      })
+    }
+    else if (path === '/contacts/match') {
+      let contacts = await getContacts()
+      let phoneNumbers = _.get(data, 'body.phoneNumbers') || []
+      let res = findMatchContacts(contacts, phoneNumbers)
+      rc.postMessage({
+        type: 'rc-post-message-response',
+        responseId: data.requestId,
+        response: {
+          data: res
+        }
+      })
+    }
     //   else if (path === '/callLogger') {
     //     // add your codes here to log call to your service
     //     syncCallLogToThirdParty(data.body)
@@ -263,7 +281,13 @@ export function thirdPartyServiceConfig(serviceName) {
  * could init dom insert etc here
  */
 export async function initThirdParty() {
-
+  let userAuthed = await ls.get('userAuthed') || false
+  window.rc.userAuthed = userAuthed
+  //get the html ready
+  renderAuthButton()
+  if (window.rc.userAuthed) {
+    notifyRCAuthed()
+  }
 }
 
 /**
