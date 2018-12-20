@@ -35,6 +35,7 @@ import {
   getActivities,
   showActivityDetail
 } from './features/activities'
+import {syncCallLogToThirdParty} from './features/call-log-sync'
 
 // insert click to call button
 export const insertClickToCallButton = [
@@ -146,9 +147,9 @@ export function thirdPartyServiceConfig(serviceName) {
     unauthorizedTitle: 'Authorize',
     authorized: false,
 
-    // // Enable call log sync feature
-    // callLoggerPath: '/callLogger',
-    // callLoggerTitle: `Log to ${serviceName}`,
+    // Enable call log sync feature
+    callLoggerPath: '/callLogger',
+    callLoggerTitle: `Log to ${serviceName}`,
 
     // show contact activities in ringcentral widgets
     activitiesPath: '/activities',
@@ -236,16 +237,16 @@ export function thirdPartyServiceConfig(serviceName) {
         }
       })
     }
-    //   else if (path === '/callLogger') {
-    //     // add your codes here to log call to your service
-    //     syncCallLogToThirdParty(data.body)
-    //     // response to widget
-    //     rc.postMessage({
-    //       type: 'rc-post-message-response',
-    //       responseId: data.requestId,
-    //       response: { data: 'ok' }
-    //     })
-    //   }
+    else if (path === '/callLogger') {
+      // add your codes here to log call to your service
+      syncCallLogToThirdParty(data.body)
+      // response to widget
+      rc.postMessage({
+        type: 'rc-post-message-response',
+        responseId: data.requestId,
+        response: { data: 'ok' }
+      })
+    }
     else if (path === '/activities') {
       const activities = await getActivities(data.body)
       /*
