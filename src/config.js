@@ -294,3 +294,7 @@ export async function initThirdParty() {
     notifyRCAuthed()
   }
 }
+
+// init call with ringcenntral button at page bottom
+// enbaled by default, change to false to disable it
+export const initCallButton = true
