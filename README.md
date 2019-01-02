@@ -13,9 +13,9 @@ Add RingCentral Embeddable Voice widgets to pipedrive
 - Show contact event from RingCentral Widgets.
 - Manully/auto Sync Call log to third party contact event.
 
-## Demo video(Insightly)
+## Video
 
-[https://youtu.be/Qfje5d5OdK0](https://youtu.be/Qfje5d5OdK0)
+[https://youtu.be/5P5MXFFzf7o](https://youtu.be/5P5MXFFzf7o)
 
 ## Screenshots(Insightly and Hubspot)
 

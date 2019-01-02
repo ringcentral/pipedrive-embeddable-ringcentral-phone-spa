@@ -42,7 +42,7 @@ export const insertClickToCallButton = [
   ///*
   {
     // must match page url
-    urlCheck: href => {
+    shouldAct: href => {
       return /\/person\/\d+/.test(href)
     },
 
@@ -88,7 +88,7 @@ export const hoverShowClickToCallButton = [
   //config example
   {
     // must match url
-    urlCheck: href => {
+    shouldAct: href => {
       return /\/persons\/list\/user\/\d+/.test(href)
     },
 
@@ -118,7 +118,7 @@ export const hoverShowClickToCallButton = [
 export const phoneNumberSelectors = [
   ///* example config
   {
-    urlCheck: (href) => {
+    shouldAct: (href) => {
       return /\/person\/\d+/.test(href)
     },
     selector: '[data-test="phone-label"]'
