@@ -72,16 +72,6 @@ npm start
   },
 ```
 
-## Make the features works
-
-For now it is just a widget, you can call with it, to make all the features work, still need more developer work.
-
-To make it easier, we already set common modules to reduce developer efforts, you could set proper selectors, methods to make all features to work:
-
-- Edit [src/config.js](src/config.js) to make all features to work
-- Further more you can edit [src/manifest.json](src/manifest.json) to do more customization work.
-- And you can always read [Realworld examples](#realworld-examples) source code as examples
-
 ## Credits
 
 Created with [Embbnux Ji](https://github.com/embbnux)'s tuturial:
