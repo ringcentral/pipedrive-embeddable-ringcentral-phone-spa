@@ -15,14 +15,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/zxdong262/pipedrive-embeddable-ringcentral-phone-spa.git"
+    "url": "git+https://github.com/ringcentral/pipedrive-embeddable-ringcentral-phone-spa.git"
   },
   "author": "Drake Zhao <drake.zhao@ringcentral.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/zxdong262/pipedrive-embeddable-ringcentral-phone-spa/issues"
+    "url": "https://github.com/ringcentral/pipedrive-embeddable-ringcentral-phone-spa/issues"
   },
-  "homepage": "https://github.com/zxdong262/pipedrive-embeddable-ringcentral-phone-spa#readme",
+  "homepage": "https://github.com/ringcentral/pipedrive-embeddable-ringcentral-phone-spa#readme",
   "devDependencies": {
     "@babel/cli": "7.1.2",
     "@babel/core": "7.1.2",
