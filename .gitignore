@@ -13,6 +13,7 @@
 package-lock.json
 /config.js
 
+*.zip
 *.crx
 *.pem
 *.pid
