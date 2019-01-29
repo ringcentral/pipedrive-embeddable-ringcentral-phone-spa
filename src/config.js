@@ -121,7 +121,10 @@ export const phoneNumberSelectors = [
     shouldAct: (href) => {
       return /\/person\/\d+/.test(href)
     },
-    selector: '.fieldsList [data-test="phone-label"]'
+    //selector: '.fieldsList [data-test="phone-label"]',
+    getElements: () => {
+      return document.querySelectorAll('.fieldsList [data-test="phone-label"]')
+    }
   }
   //*/
 ]
