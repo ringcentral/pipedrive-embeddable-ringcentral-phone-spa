@@ -212,7 +212,9 @@ export function hideContactInfoPanel() {
  */
 export async function showContactInfoPanel(call) {
   if (
+    !call ||
     !call.telephonyStatus ||
+    call.direction === 'Outbound' ||
     call.telephonyStatus === 'CallConnected'
   ) {
     return
