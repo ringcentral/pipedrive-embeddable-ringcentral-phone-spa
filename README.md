@@ -1,7 +1,9 @@
 
 # pipedrive-embeddable-ringcentral-phone-spa
 
-Add RingCentral Embeddable Voice widgets to pipedrive
+Add RingCentral Embeddable Voice widgets to pipedrive.
+
+Created with [ringcentral-embeddable-extension-factory](https://github.com/ringcentral/ringcentral-embeddable-extension-factory), you could create similar extension for other CRM sites with it.
 
 ## Features
 
@@ -21,10 +23,11 @@ Add RingCentral Embeddable Voice widgets to pipedrive
 
 ![ ](screenshots/pipedrive.png)
 
-## Realworld examples
+## Try it
 
-- [insightly-embeddable-ringcentral-phone](https://github.com/ringcentral/insightly-embeddable-ringcentral-phone)
-- [hubspot-embeddable-ringcentral-phone](https://github.com/ringcentral/hubspot-embeddable-ringcentral-phone)
+- Download the zip from release page: [https://github.com/ringcentral/pipedrive-embeddable-ringcentral-phone-spa/releases](https://github.com/ringcentral/pipedrive-embeddable-ringcentral-phone-spa/releases)
+- Unpack it, get a dist folder, open your chrome extension page(chrome://extensions/), click load unpacked, select the dist folder
+- Go to `pipedrive.com` to check
 
 ## Build and Use
 
