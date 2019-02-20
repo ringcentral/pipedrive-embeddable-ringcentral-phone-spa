@@ -57,10 +57,10 @@ export function notifySyncSuccess() {
  * @param {*} body
  */
 export async function syncCallLogToThirdParty(body) {
-  let result = _.get(body, 'call.result')
-  if (result !== 'Call connected') {
-    return
-  }
+  // let result = _.get(body, 'call.result')
+  // if (result !== 'Call connected') {
+  //   return
+  // }
   let isManuallySync = !body.triggerType
   let isAutoSync = body.triggerType === 'callLogSync'
   if (!isAutoSync && !isManuallySync) {

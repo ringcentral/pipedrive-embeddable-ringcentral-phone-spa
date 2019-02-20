@@ -27,7 +27,7 @@ export function getUserId() {
  * @param {object} body
  */
 export function showActivityDetail(body) {
-  console.log(body)
+  //console.log(body)
   let {activity = {}} = body
   let {
     subject,

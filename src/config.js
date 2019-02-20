@@ -158,11 +158,12 @@ export function thirdPartyServiceConfig(serviceName) {
 
   // handle ringcentral event
   let handleRCEvents = async e => {
-    console.log(e)
+    //console.log(e)
     let {data} = e
     if (!data) {
       return
     }
+    console.log(data)
     let {type, loggedIn, path, call} = data
     if (type ===  'rc-login-status-notify') {
       console.log('rc logined', loggedIn)
