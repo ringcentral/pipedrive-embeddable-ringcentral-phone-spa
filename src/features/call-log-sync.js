@@ -85,35 +85,35 @@ export async function syncCallLogToThirdParty(body) {
  * @param {object} body
  */
 async function getContact(body) {
-  if (body.call) {
-    let obj = _.find(
-      [
-        ...body.call.toMatches,
-        ...body.call.fromMatches
-      ],
-      m => m.type === serviceName
-    )
+  let obj = _.find(
+    [
+      ..._.get(body, 'call.toMatches') || [],
+      ..._.get(body, 'call.fromMatches') || []
+    ],
+    m => m.type === serviceName
+  )
+  if (obj) {
     return obj
   }
-  else {
-    let n = body.direction === 'Outbound'
-      ? body.to.phoneNumber
-      : body.from.phoneNumber
-    let fn = formatPhone(n)
-    let contacts = await getContacts()
-    let res = _.find(
-      contacts,
-      contact => {
-        let {
-          phoneNumbers
-        } = contact
-        return _.find(phoneNumbers, nx => {
-          return fn === formatPhone(nx.phoneNumber)
-        })
-      }
-    )
-    return res
-  }
+  
+  let nf = _.get(body, 'to.phoneNumber') || _.get(body.call, 'to.phoneNumber')
+  let nt = _.get(body, 'from.phoneNumber') || _.get(body.call, 'from.phoneNumber')
+  nf = formatPhone(nf)
+  nt = formatPhone(nt)
+  let contacts = await getContacts()
+  let res = _.find(
+    contacts,
+    contact => {
+      let {
+        phoneNumbers
+      } = contact
+      return _.find(phoneNumbers, nx => {
+        let t = formatPhone(nx.phoneNumber)
+        return nf === t || nt === t
+      })
+    }
+  )
+  return res
 }
 
 /**
