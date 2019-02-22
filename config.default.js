@@ -9,8 +9,11 @@ let config = {
 
   //ringcentral config
   ringCentralConfigs: {
-    clientID: '',
-    appServer: ''
+    // your ringCentral app's Client ID
+    appKey: 'faiv8pjETk6cuAGPB3EuGw',
+
+    // your ringCentral app's Auth Server URL
+    appServer: 'https://platform.ringcentral.com'
   },
 
   //for third party related
