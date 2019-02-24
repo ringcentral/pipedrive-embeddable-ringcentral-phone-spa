@@ -1,6 +1,6 @@
 {
   "name": "pipedrive-embeddable-ringcentral-phone-spa",
-  "version": "0.3.10",
+  "version": "0.3.11",
   "description": "Add RingCentral Embeddable Voice widgets to Pipedrive",
   "keywords": [
     "RingCentral",

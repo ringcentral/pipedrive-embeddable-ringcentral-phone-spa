@@ -10,7 +10,7 @@ let config = {
   //ringcentral config
   ringCentralConfigs: {
     // your ringCentral app's Client ID
-    appKey: 'faiv8pjETk6cuAGPB3EuGw',
+    clientID: 'faiv8pjETk6cuAGPB3EuGw',
 
     // your ringCentral app's Auth Server URL
     appServer: 'https://platform.ringcentral.com'
