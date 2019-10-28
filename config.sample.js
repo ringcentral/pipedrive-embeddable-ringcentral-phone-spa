@@ -5,37 +5,33 @@
  */
 module.exports = {
 
-  //// dev related
+  /// / dev related
 
   // minimize content.js
   // minimize: false
 
   // congfigs to build app
 
-  //// ringcentral config
+  /// / ringcentral config
 
   ringCentralConfigs: {
     // your ringCentral app's Client ID
-    clientID: 'faiv8pjETk6cuAGPB3EuGw',
-
+    clientID: '',
+    // client secret
+    clientSecret: '',
     // your ringCentral app's Auth Server URL
     appServer: 'https://platform.ringcentral.com'
   },
 
-
-  //// for third party related
+  /// / for third party related
 
   thirdPartyConfigs: {
 
-    //service name, one word only, such as Insightly, RedTailCRM...
-    serviceName: 'noname',
+    // service name, one word only, such as Insightly, RedTailCRM...
+    serviceName: 'serviceName',
 
     // show call log sync desc form or not
     showCallLogSyncForm: true
   }
 
 }
-
-
-
-

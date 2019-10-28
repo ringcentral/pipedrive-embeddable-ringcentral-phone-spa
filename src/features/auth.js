@@ -2,11 +2,12 @@
  * auth related feature
  */
 
-import {thirdPartyConfigs} from 'ringcentral-embeddable-extension-common/src/common/app-config'
+import { thirdPartyConfigs } from 'ringcentral-embeddable-extension-common/src/common/app-config'
 import logo from 'ringcentral-embeddable-extension-common/src/common/rc-logo'
 import {
   createElementFromHTML,
-  findParentBySel
+  findParentBySel,
+  sendMsgToRCIframe
 } from 'ringcentral-embeddable-extension-common/src/common/helpers'
 import * as ls from 'ringcentral-embeddable-extension-common/src/common/ls'
 
@@ -15,8 +16,12 @@ let {
   serviceName
 } = thirdPartyConfigs
 
-export async function updateUserAuthed(authed) {
-  if (!authed){
+window.rc = {
+  postMessage: sendMsgToRCIframe
+}
+
+export async function updateUserAuthed (authed) {
+  if (!authed) {
     await ls.clear()
     window.rc.userAuthed = false
   } else {
@@ -29,7 +34,7 @@ export async function updateUserAuthed(authed) {
  * when user click close auth button or
  * user start auth process, hide auth button
  */
-export function hideAuthBtn() {
+export function hideAuthBtn () {
   let dom = document.querySelector('.rc-auth-button-wrap')
   dom && dom.classList.add('rc-hide-to-side')
 }
@@ -39,7 +44,7 @@ export function hideAuthBtn() {
  * try to get third party contacts,
  * need show auth button to user
  */
-export function showAuthBtn() {
+export function showAuthBtn () {
   let dom = document.querySelector('.rc-auth-button-wrap')
   dom && dom.classList.remove('rc-hide-to-side')
 }
@@ -48,9 +53,9 @@ export function showAuthBtn() {
  * hanle user click auth button
  * @param {*} e
  */
-function handleAuthClick(e) {
-  let {target} = e
-  let {classList}= target
+function handleAuthClick (e) {
+  let { target } = e
+  let { classList } = target
   if (findParentBySel(target, '.rc-auth-btn')) {
     doAuth()
   } else if (classList.contains('rc-dismiss-auth')) {
@@ -61,7 +66,7 @@ function handleAuthClick(e) {
 /**
  * hide auth panel when auth end
  */
-export function hideAuthPanel() {
+export function hideAuthPanel () {
   let frameWrap = document.getElementById('rc-auth-hs')
   frameWrap && frameWrap.classList.add('rc-hide-to-side')
 }
@@ -71,7 +76,7 @@ export function hideAuthPanel() {
  * do the auth here,
  * might need get apikey or maybe just do nothing
  */
-export async function doAuth() {
+export async function doAuth () {
   if (window.rc.userAuthed) {
     return
   }
@@ -86,7 +91,7 @@ export async function doAuth() {
  * notify ringcentral widgets about auth status
  * @param {} authorized
  */
-export function notifyRCAuthed(authorized = true) {
+export function notifyRCAuthed (authorized = true) {
   window.rc.postMessage({
     type: 'rc-adapter-update-authorization-status',
     authorized
@@ -96,17 +101,21 @@ export function notifyRCAuthed(authorized = true) {
 /**
  * when user click unauth button from ringcentral widgets
  */
-export async function unAuth() {
+export async function unAuth () {
   await updateUserAuthed(false)
   clearTimeout(tokenHandler)
   notifyRCAuthed(false)
+  let refreshContactsBtn = document.getElementById('rc-reload-contacts')
+  if (refreshContactsBtn) {
+    refreshContactsBtn.remove()
+  }
 }
 
 /**
  * render auth button
  * todo: you can customize this
  */
-export function renderAuthButton() {
+export function renderAuthButton () {
   let btn = createElementFromHTML(
     `
       <div class="rc-auth-button-wrap animate rc-hide-to-side">
@@ -135,6 +144,6 @@ export function renderAuthButton() {
 /**
  * todo: you can customize this
  */
-export function renderAuthPanel() {
+export function renderAuthPanel () {
   return false
 }

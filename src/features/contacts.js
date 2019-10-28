@@ -3,7 +3,6 @@
  */
 
 import _ from 'lodash'
-import {setCache, getCache} from 'ringcentral-embeddable-extension-common/src/common/cache'
 import {
   showAuthBtn
 } from './auth'
@@ -14,29 +13,21 @@ import {
   host
 } from 'ringcentral-embeddable-extension-common/src/common/helpers'
 import fetch from 'ringcentral-embeddable-extension-common/src/common/fetch'
-import {thirdPartyConfigs} from 'ringcentral-embeddable-extension-common/src/common/app-config'
+import { thirdPartyConfigs } from 'ringcentral-embeddable-extension-common/src/common/app-config'
+import {
+  remove,
+  insert,
+  getByPage,
+  match
+} from 'ringcentral-embeddable-extension-common/src/common/db'
+import * as ls from 'ringcentral-embeddable-extension-common/src/common/ls'
+import { getAllDeals } from './deals'
+import { getSessionToken } from './common'
+// import './add-contacts'
 
 let {
   serviceName
 } = thirdPartyConfigs
-
-let cacheKey = 'ls-contacts'
-/**
- * get session token for request from server
- */
-export function getSessionToken() {
-  let {cookie} = document
-  let arr = cookie.match(/pipe-session-token=([^;]+);/)
-  return arr ? arr[1] : ''
-}
-
-/**
- * get current user info
- * @param {string} token
- */
-export function getSelfInfo(token = getSessionToken()) {
-  return fetch.get(`${host}/api/v1/users/self?session_token=${token}&strict_mode=true&_=${+new Date()}`)
-}
 
 /**
  * convert pipedrive contact data to ringcentral format data
@@ -52,11 +43,11 @@ export function getSelfInfo(token = getSessionToken()) {
     emails: ['test@email.com']
   }]
  */
-function formatData(data) {
+function formatData (data) {
   return data.data.map(d => {
-    let {id, name, owner_id, label, phone, email, org_id} = d
-    return {
-      id,
+    let { id, name, owner_id: ownerId, label, phone, email, org_id: orgId } = d
+    let res = {
+      id: id + '',
       name,
       phoneNumbers: phone.map(p => {
         return {
@@ -65,12 +56,15 @@ function formatData(data) {
           phoneType: p.label
         }
       }),
-      org_id,
+      org_id: orgId + '',
       emails: email.map(r => r.value),
       type: serviceName,
-      owner_id,
+      owner_id: ownerId + '',
       label
     }
+    res.phoneNumbersForSearch = res
+      .phoneNumbers.map(d => formatPhone(d.phoneNumber)).join(',')
+    return res
   })
 }
 
@@ -79,8 +73,8 @@ function formatData(data) {
  * @param {Event} e
  */
 function onClickContactPanel (e) {
-  let {target} = e
-  let {classList} = target
+  let { target } = e
+  let { classList } = target
   if (classList.contains('rc-close-contact')) {
     document
       .querySelector('.rc-contact-panel')
@@ -98,107 +92,88 @@ function onloadIframe () {
 }
 
 /**
- * search contacts by number match
- * @param {array} contacts
- * @param {string} keyword
- */
-export function findMatchContacts(contacts = [], numbers) {
-  let {formatedNumbers, formatNumbersMap} = numbers.reduce((prev, n) => {
-    let nn = formatPhone(n)
-    prev.formatedNumbers.push(nn)
-    prev.formatNumbersMap[nn] = n
-    return prev
-  }, {
-    formatedNumbers: [],
-    formatNumbersMap: {}
-  })
-  let res = contacts.filter(contact => {
-    let {
-      phoneNumbers
-    } = contact
-    return _.find(phoneNumbers, n => {
-      return formatedNumbers
-        .includes(
-          formatPhone(n.phoneNumber)
-        )
-    })
-  })
-  return res.reduce((prev, it) => {
-    let phone = _.find(it.phoneNumbers, n => {
-      return formatedNumbers.includes(
-        formatPhone(n.phoneNumber)
-      )
-    })
-    let num = phone.phoneNumber
-    let key = formatNumbersMap[
-      formatPhone(num)
-    ]
-    if (!prev[key]) {
-      prev[key] = []
-    }
-    let res = {
-      id: it.id, // id to identify third party contact
-      type: serviceName, // need to same as service name
-      name: it.name,
-      phoneNumbers: it.phoneNumbers
-    }
-    prev[key].push(res)
-    return prev
-  }, {})
-}
-
-
-/**
- * search contacts by keyword
- * @param {array} contacts
- * @param {string} keyword
- */
-export function searchContacts(contacts = [], keyword) {
-  return contacts.filter(contact => {
-    let {
-      name,
-      phoneNumbers
-    } = contact
-    return name.includes(keyword) ||
-      _.find(phoneNumbers, n => {
-        return n.phoneNumber.includes(keyword)
-      })
-  })
-}
-
-/**
  * get contact lists function
  * todo: this function need you find out how to do it
  * you may check the CRM site to find the right api to do it
  * or CRM site supply with special api for it
  */
-export const getContacts = _.debounce(async function getContacts() {
+export const getContact = async function (start = 0) {
+  let token = getSessionToken()
+  // let self = await getSelfInfo(token)
+  // let uid = self.data.id
+  let url = `${host}/api/v1/persons/list:(cc_email,active_flag,id,name,label,org_id,email,phone,closed_deals_count,open_deals_count,next_activity_date,owner_id,next_activity_time)?session_token=${token}&strict_mode=true&user_id=&sort=&label=&start=${start}&type=person&_=${+new Date()}`
+  return fetch.get(url)
+}
+
+async function fetchAllContacts () {
+  if (window.rc.isFetchingContacts) {
+    return
+  }
+  console.debug('running fetchAllContacts')
+  window.rc.isFetchingContacts = true
+  loadingContacts()
+  let start = 0
+  let hasMore = true
+  await remove().catch(e => {
+    console.log(e.stack)
+  })
+  while (hasMore) {
+    let res = await getContact(start).catch(console.debug)
+    if (!res || !res.data) {
+      window.rc.isFetchingContacts = false
+      return
+    }
+    let final = formatData(res)
+    start = _.get(res, 'additional_data.pagination.start') + _.get(res, 'additional_data.pagination.limit')
+    hasMore = _.get(res, 'additional_data.pagination.more_items_in_collection')
+    console.debug('fetching, start:', start, ', has more:', hasMore)
+    await insert(final).catch(console.debug)
+  }
+  let now = Date.now()
+  window.rc.syncTimestamp = now
+  await ls.set('syncTimestamp', now)
+  window.rc.isFetchingContacts = false
+  stopLoadingContacts()
+  notifyReSyncContacts()
+  setTimeout(getAllDeals, 600)
+}
+
+/**
+ * get contact lists
+ */
+export const getContacts = async function (page = 1) {
+  let final = {
+    result: [],
+    hasMore: false
+  }
   if (!window.rc.rcLogined) {
-    return []
+    return final
   }
   if (!window.rc.userAuthed) {
     showAuthBtn()
-    return []
+    return final
   }
-  let cached = await getCache(cacheKey)
-  if (cached) {
-    console.log('use cache')
+  loadingContacts()
+  let cached = await getByPage(page).catch(e => console.log(e.stack))
+  if (cached && cached.result && cached.result.length) {
+    console.debug('use cache')
+    stopLoadingContacts()
     return cached
   }
-  let token = getSessionToken()
-  let self = await getSelfInfo(token)
-  let uid = self.data.id
-  let url = `${host}/api/v1/persons/list:(cc_email,active_flag,id,name,label,org_id,email,phone,closed_deals_count,open_deals_count,next_activity_date,owner_id,next_activity_time)?session_token=${token}&strict_mode=true&user_id=${uid}&sort=&label=&start=0&type=person&_=${+new Date()}`
-  let data = await fetch.get(url)
-
-  let final = formatData(data)
-  await setCache(cacheKey, final)
+  const ps = 100
+  let start = (page - 1) * ps
+  let res = await getContact(start)
+  if (!res || !res.data) {
+    return final
+  }
+  final.result = formatData(res)
+  final.hasMore = _.get(res, 'additional_data.pagination.more_items_in_collection')
+  stopLoadingContacts()
+  fetchAllContacts()
   return final
-}, 100, {
-  leading: true
-})
+}
 
-export function hideContactInfoPanel() {
+export function hideContactInfoPanel () {
   let dom = document
     .querySelector('.rc-contact-panel')
   dom && dom.classList.add('rc-hide-to-side')
@@ -210,35 +185,22 @@ export function hideContactInfoPanel() {
  * you may check the CRM site to find the right api to do it
  * @param {Object} call
  */
-export async function showContactInfoPanel(call) {
+export async function showContactInfoPanel (call) {
   if (
     !call ||
-    !call.telephonyStatus ||
-    call.direction === 'Outbound' ||
-    call.telephonyStatus === 'CallConnected'
+    call.telephonyStatus !== 'Ringing' ||
+    call.direction === 'Outbound'
   ) {
     return
   }
-  if (call.telephonyStatus === 'NoCall') {
-    return hideContactInfoPanel()
-  }
-  let isInbound = call.direction === 'Inbound'
-  let phone = isInbound
-    ? _.get(
-      call,
-      'from.phoneNumber'
-    )
-    : _.get(call, 'to.phoneNumber')
+  popup()
+  let phone = _.get(call, 'from.phoneNumber') || _.get(call, 'from')
   if (!phone) {
     return
   }
   phone = formatPhone(phone)
-  let contacts = await getContacts()
-  let contact = _.find(contacts, c => {
-    return _.find(c.phoneNumbers, p => {
-      return formatPhone(p.phoneNumber) === phone
-    })
-  })
+  let contacts = await match([phone])
+  let contact = _.get(contacts, `${phone}[0]`)
   if (!contact) {
     return
   }
@@ -274,4 +236,42 @@ export async function showContactInfoPanel(call) {
 
   document.body.appendChild(elem)
   popup()
+}
+
+function loadingContacts () {
+  let loadingContactsBtn = document.getElementById('rc-reloading-contacts')
+  if (loadingContactsBtn) {
+    return
+  }
+  let elem = createElementFromHTML(
+    `
+    <span
+      class="rc-reloading-contacts"
+      id="rc-reloading-contacts"
+      title="Resync contacts to RingCentral Widgets"
+    />Syncing contacts</span>
+    `
+  )
+  document.body.appendChild(elem)
+}
+
+function stopLoadingContacts () {
+  let loadingContactsBtn = document.getElementById('rc-reloading-contacts')
+  if (loadingContactsBtn) {
+    loadingContactsBtn.remove()
+  }
+}
+
+export function reSyncData () {
+  if (!window.rc.userAuthed) {
+    showAuthBtn()
+    return
+  }
+  fetchAllContacts()
+}
+
+function notifyReSyncContacts () {
+  window.rc.postMessage({
+    type: 'rc-adapter-sync-third-party-contacts'
+  })
 }

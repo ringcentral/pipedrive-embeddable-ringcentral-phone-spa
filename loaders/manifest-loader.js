@@ -2,7 +2,7 @@
  * loaders to output
  */
 
-module.exports = function(source) {
+module.exports = function (source) {
   if (this.cacheable) this.cacheable()
   this.emitFile(
     'manifest.json',
@@ -10,4 +10,3 @@ module.exports = function(source) {
   )
   return '{}'
 }
-

@@ -7,12 +7,14 @@
  *
  */
 
-///*
+/// *
 import {
-  //RCBTNCLS2,
+  // RCBTNCLS2,
   checkPhoneNumber
 } from 'ringcentral-embeddable-extension-common/src/common/helpers'
-//*/
+import { thirdPartyConfigs } from 'ringcentral-embeddable-extension-common/src/common/app-config'
+import { upgrade } from 'ringcentral-embeddable-extension-common/src/feat/upgrade-notification'
+//* /
 
 import _ from 'lodash'
 import {
@@ -25,21 +27,27 @@ import {
 import * as ls from 'ringcentral-embeddable-extension-common/src/common/ls'
 
 import {
-  findMatchContacts,
-  searchContacts,
   showContactInfoPanel,
-  hideContactInfoPanel,
-  getContacts
+  getContacts,
+  reSyncData
 } from './features/contacts'
 import {
   getActivities,
   showActivityDetail
 } from './features/activities'
-import {syncCallLogToThirdParty} from './features/call-log-sync'
+import { syncCallLogToThirdParty } from './features/call-log-sync'
+import {
+  search,
+  match
+} from 'ringcentral-embeddable-extension-common/src/common/db'
+
+let {
+  pageSize = 100
+} = thirdPartyConfigs
 
 // insert click to call button
 export const insertClickToCallButton = [
-  ///*
+  /// *
   {
     // must match page url
     shouldAct: href => {
@@ -79,20 +87,20 @@ export const insertClickToCallButton = [
       }
     ]
   }
-  //*/
+  //* /
 ]
 
 // hover contact node to show click to dial tooltip
 export const hoverShowClickToCallButton = [
-  ///*
-  //config example
+  /// *
+  // config example
   {
     // must match url
     shouldAct: href => {
-      return /\/persons\/list\/user\/\d+/.test(href)
+      return /\/persons\/list\/user\/(\d+)|everyone/.test(href)
     },
 
-    //elemment selector
+    // elemment selector
     selector: '.gridContent--scrollable .gridContent__table tbody tr',
 
     // function to get phone numbers, suport async function
@@ -111,27 +119,38 @@ export const hoverShowClickToCallButton = [
         }).filter(d => checkPhoneNumber(d.number))
     }
   }
-  //*/
+  //* /
 ]
 
 // modify phone number text to click-to-call link
 export const phoneNumberSelectors = [
-  ///* example config
+  /// * example config
   {
     shouldAct: (href) => {
       return /\/person\/\d+/.test(href)
     },
     selector: '.fieldsList [data-test="phone-label"]'
+  },
+  {
+    shouldAct: (href) => {
+      return /\/person\/\d+/.test(href)
+    },
+    selector: '[data-test="activity-note"] b'
+  },
+  {
+    shouldAct: (href) => {
+      return /\/deal\/\d+/.test(href)
+    },
+    selector: '[data-test="activity-note"] b'
   }
-  //*/
+  //* /
 ]
 
 /**
  * thirdPartyService config
  * @param {*} serviceName
  */
-export function thirdPartyServiceConfig(serviceName) {
-
+export function thirdPartyServiceConfig (serviceName) {
   console.log(serviceName, 'serviceName')
 
   let services = {
@@ -151,22 +170,27 @@ export function thirdPartyServiceConfig(serviceName) {
     callLoggerPath: '/callLogger',
     callLoggerTitle: `Log to ${serviceName}`,
 
+    messageLoggerPath: '/messageLogger',
+    messageLoggerTitle: `Log to ${serviceName}`,
+
     // show contact activities in ringcentral widgets
     activitiesPath: '/activities',
-    activityPath: '/activity'
+    activityPath: '/activity',
+    callLogEntityMatcherPath: '/callLogger/match',
+    messageLogEntityMatcherPath: '/messageLogger/match'
   }
 
   // handle ringcentral event
   let handleRCEvents = async e => {
-    //console.log(e)
-    let {data} = e
+    // console.log(e)
+    let { data } = e
     if (!data) {
       return
     }
-    console.log(data)
-    let {type, loggedIn, path, call} = data
-    if (type ===  'rc-login-status-notify') {
-      console.log('rc logined', loggedIn)
+    console.debug(data)
+    let { type, loggedIn, path, call } = data
+    if (type === 'rc-login-status-notify') {
+      console.debug('rc logined', loggedIn)
       window.rc.rcLogined = loggedIn
     }
     if (
@@ -176,18 +200,15 @@ export function thirdPartyServiceConfig(serviceName) {
     ) {
       showAuthBtn()
     } else if (
-      type === 'rc-active-call-notify' ||
-      type === 'rc-call-start-notify'
+      type === 'rc-active-call-notify'
     ) {
       showContactInfoPanel(call)
-    } else if ('rc-call-end-notify' === type) {
-      hideContactInfoPanel()
     }
     if (type !== 'rc-post-message-request') {
       return
     }
 
-    let {rc} = window
+    let { rc } = window
 
     if (data.path === '/authorize') {
       if (rc.userAuthed) {
@@ -200,23 +221,47 @@ export function thirdPartyServiceConfig(serviceName) {
         responseId: data.requestId,
         response: { data: 'ok' }
       })
-    }
-    else if (path === '/contacts') {
-      let contacts = await getContacts()
+    } else if (path === '/contacts') {
+      let isMannulSync = _.get(data, 'body.type') === 'manual'
+      if (isMannulSync) {
+        reSyncData()
+        rc.postMessage({
+          type: 'rc-post-message-response',
+          responseId: data.requestId,
+          response: {
+            data: [],
+            nextPage: null,
+            syncTimestamp: window.rc.syncTimestamp
+          }
+        })
+        return
+      }
+      let page = _.get(data, 'body.page') || 1
+      let contacts = await getContacts(page)
+      let nextPage = ((contacts.count || 0) - page * pageSize > 0) || contacts.hasMore
+        ? page + 1
+        : null
+      let syncTimestamp = _.get(data, 'body.syncTimestamp')
+      if (syncTimestamp && syncTimestamp === window.rc.syncTimestamp) {
+        nextPage = null
+      }
       rc.postMessage({
         type: 'rc-post-message-response',
         responseId: data.requestId,
         response: {
-          data: contacts,
-          nextPage: null
+          data: contacts.result,
+          nextPage,
+          syncTimestamp: window.rc.syncTimestamp || null
         }
       })
-    }
-    else if (path === '/contacts/search') {
-      let contacts = await getContacts()
+    } else if (path === '/contacts/search') {
+      if (!rc.userAuthed) {
+        return showAuthBtn()
+      }
+      let contacts = []
       let keyword = _.get(data, 'body.searchString')
       if (keyword) {
-        contacts = searchContacts(contacts, keyword)
+        contacts = await search(keyword)
       }
       rc.postMessage({
         type: 'rc-post-message-response',
@@ -225,11 +270,12 @@ export function thirdPartyServiceConfig(serviceName) {
           data: contacts
         }
       })
-    }
-    else if (path === '/contacts/match') {
-      let contacts = await getContacts()
+    } else if (path === '/contacts/match') {
+      if (!rc.userAuthed) {
+        return showAuthBtn()
+      }
       let phoneNumbers = _.get(data, 'body.phoneNumbers') || []
-      let res = findMatchContacts(contacts, phoneNumbers)
+      let res = await match(phoneNumbers)
       rc.postMessage({
         type: 'rc-post-message-response',
         responseId: data.requestId,
@@ -237,8 +283,7 @@ export function thirdPartyServiceConfig(serviceName) {
           data: res
         }
       })
-    }
-    else if (path === '/callLogger') {
+    } else if (path === '/callLogger' || path === '/messageLogger') {
       // add your codes here to log call to your service
       syncCallLogToThirdParty(data.body)
       // response to widget
@@ -247,8 +292,7 @@ export function thirdPartyServiceConfig(serviceName) {
         responseId: data.requestId,
         response: { data: 'ok' }
       })
-    }
-    else if (path === '/activities') {
+    } else if (path === '/activities') {
       const activities = await getActivities(data.body)
       /*
       [
@@ -265,8 +309,7 @@ export function thirdPartyServiceConfig(serviceName) {
         responseId: data.requestId,
         response: { data: activities }
       })
-    }
-    else if (path === '/activity') {
+    } else if (path === '/activity') {
       // response to widget
       showActivityDetail(data.body)
       rc.postMessage({
@@ -286,14 +329,17 @@ export function thirdPartyServiceConfig(serviceName) {
  * init third party
  * could init dom insert etc here
  */
-export async function initThirdParty() {
+export async function initThirdParty () {
   let userAuthed = await ls.get('userAuthed') || false
   window.rc.userAuthed = userAuthed
-  //get the html ready
+  window.rc.syncTimestamp = await ls.get('syncTimestamp') || null
+  window.rc.syncTimestampDeal = await ls.get('syncTimestampDeal') || null
+  // get the html ready
   renderAuthButton()
   if (window.rc.userAuthed) {
     notifyRCAuthed()
   }
+  upgrade()
 }
 
 // init call with ringcenntral button at page bottom

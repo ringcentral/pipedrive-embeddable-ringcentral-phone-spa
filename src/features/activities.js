@@ -10,15 +10,19 @@ import extLinkSvg from 'ringcentral-embeddable-extension-common/src/common/link-
 import _ from 'lodash'
 import fetch from 'ringcentral-embeddable-extension-common/src/common/fetch'
 import moment from 'moment'
-import {getSessionToken} from './contacts'
+import { getSessionToken } from './common'
 
 /** method to get user unique id, could be email, since it is unique */
-export function getUserId() {
-  ///* example config
-  let {cookie} = document
+export function getUserId () {
+  /// * example config
+  let cookie = decodeURIComponent(document.cookie)
   let arr = cookie.match(/__vero_user=\d+:(\d+);/)
-  return arr ? arr[1] : ''
-  //*/
+  let arr1 = cookie.match(/ajs_user_id="\d+:(\d+)"/)
+  let id = arr ? arr[1] : ''
+  if (!id) {
+    id = arr1 ? arr1[1] : ''
+  }
+  //* /
 }
 
 /**
@@ -26,9 +30,9 @@ export function getUserId() {
  * when user click conatct activity item, show activity detail
  * @param {object} body
  */
-export function showActivityDetail(body) {
-  //console.log(body)
-  let {activity = {}} = body
+export function showActivityDetail (body) {
+  // console.log(body)
+  let { activity = {} } = body
   let {
     subject,
     url,
@@ -65,7 +69,7 @@ export function showActivityDetail(body) {
     }
   ]
  */
-export async function getActivities(body) {
+export async function getActivities (body) {
   let id = _.get(body, 'contact.id')
   if (!id) {
     return []
@@ -84,23 +88,23 @@ export async function getActivities(body) {
       .map(d => {
         let {
           id,
-          person_id,
+          person_id: pid,
           duration,
-          due_date,
+          due_date: dueDate,
           subject,
           note,
-          due_time
+          due_time: dueTime
         } = d
         return {
           id,
-          person_id,
+          person_id: pid,
           duration,
-          due_date,
+          due_date: dueDate,
           subject,
           note,
-          due_time,
+          due_time: dueTime,
           url: `${host}/activities/calendar/user/${uid}`,
-          time: moment(`${due_date} ${due_time}`, fm).valueOf()
+          time: moment(`${dueDate} ${dueTime}`, fm).valueOf()
         }
       })
   } else {
@@ -109,4 +113,3 @@ export async function getActivities(body) {
   }
   return []
 }
-

@@ -2,24 +2,39 @@
 const extend = require('recursive-assign')
 let config = {
 
-  //build options
+  // build options
   minimize: false,
 
-  //congfigs to build app
+  // congfigs to build app
 
-  //ringcentral config
+  // ringcentral config
   ringCentralConfigs: {
     // your ringCentral app's Client ID
-    clientID: 'faiv8pjETk6cuAGPB3EuGw',
+    clientID: '',
+
+    // client secret
+    clientSecret: '',
 
     // your ringCentral app's Auth Server URL
     appServer: 'https://platform.ringcentral.com'
   },
 
-  //for third party related
+  // for third party related
   thirdPartyConfigs: {
     showCallLogSyncForm: true,
-    serviceName: 'noname'
+    serviceName: 'serviceName',
+    pageSize: 10000,
+    dbSchema: {
+      org_id: {
+        dataType: 'string'
+      },
+      owner_id: {
+        dataType: 'string'
+      },
+      label: {
+        dataType: 'string'
+      }
+    }
   }
 
 }
@@ -34,6 +49,3 @@ try {
   }
 }
 module.exports = config
-
-
-
