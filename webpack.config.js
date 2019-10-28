@@ -4,14 +4,34 @@ const sysConfigDefault = require('./config.default')
 const ExtraneousFileCleanupPlugin = require('webpack-extraneous-file-cleanup-plugin')
 const path = require('path')
 const LodashModuleReplacementPlugin = require('lodash-webpack-plugin')
-
-const stylusSettingPlugin =  new webpack.LoaderOptionsPlugin({
+const pack = require('./package.json')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
+const stylusSettingPlugin = new webpack.LoaderOptionsPlugin({
   test: /\.styl$/,
   stylus: {
     preferPathResolver: 'webpack'
   }
 })
-
+const from = path.resolve(
+  __dirname,
+  'node_modules/ringcentral-embeddable-extension-common/src/icons'
+)
+const to1 = path.resolve(
+  __dirname,
+  'dist/icons'
+)
+const f2 = path.resolve(
+  __dirname,
+  'node_modules/jsstore/dist/jsstore.min.js'
+)
+const f3 = path.resolve(
+  __dirname,
+  'node_modules/jsstore/dist/jsstore.worker.min.js'
+)
+const to2 = path.resolve(
+  __dirname,
+  'dist'
+)
 const opts = {
   extensions: ['.map', '.js'],
   minBytes: 3900
@@ -34,7 +54,7 @@ var config = {
     manifest: './src/manifest.json'
   },
   output: {
-    path: __dirname + '/dist',
+    path: path.resolve(__dirname, 'dist'),
     filename: '[name].js',
     publicPath: '/',
     chunkFilename: '[name].[hash].js',
@@ -51,7 +71,8 @@ var config = {
     ]
   },
   optimization: {
-    minimize: sysConfigDefault.minimize
+    minimize: false
+    // minimize: sysConfigDefault.minimize
   },
   module: {
     rules: [
@@ -124,13 +145,26 @@ var config = {
       collections: true,
       paths: true
     }),
+    new CopyWebpackPlugin([{
+      from,
+      to: to1,
+      force: true
+    }, {
+      from: f2,
+      to: to2,
+      force: true
+    }, {
+      from: f3,
+      to: to2,
+      force: true
+    }], {}),
     new ExtraneousFileCleanupPlugin(opts),
     new webpack.DefinePlugin({
       'process.env.ringCentralConfigs': JSON.stringify(sysConfigDefault.ringCentralConfigs),
-      'process.env.thirdPartyConfigs': JSON.stringify(sysConfigDefault.thirdPartyConfigs)
+      'process.env.thirdPartyConfigs': JSON.stringify(sysConfigDefault.thirdPartyConfigs),
+      'process.env.version': JSON.stringify(pack.version)
     })
   ]
 }
 
 module.exports = config
-

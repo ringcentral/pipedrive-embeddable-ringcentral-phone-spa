@@ -10,24 +10,33 @@ Created with [ringcentral-embeddable-extension-factory](https://github.com/ringc
 - Add Click-to-call button in page.
 - Hover conact list to show Click-to-call tooltip.
 - Convert phone number text to Click-to-call link.
-- Popup caller/callee info panel when call inbound/outbound.
+- Popup caller info panel when call inbound.
 - Build with custom app config.
 - Show contact event from RingCentral Widgets.
-- Manully/auto Sync Call log to third party contact event.
+- Manully/auto Sync Call log/Call recording link/Voicemail/SMS to third party contact event, [About auto call log sync feature](https://github.com/ringcentral/hubspot-embeddable-ringcentral-phone/issues/137).
+- Custom X-USER-AGENT header for api request
+- Active call control
+- Sync call log to deal
 
 ## Video
 
-[https://youtu.be/5P5MXFFzf7o](https://youtu.be/5P5MXFFzf7o)
+[https://youtu.be/ztR4k9dWtxE](https://youtu.be/ztR4k9dWtxE)
 
-## Screenshots(Insightly and Hubspot)
+## Screenshots
 
-![ ](screenshots/pipedrive.png)
+| screenshots            |  screenshots |
+:-------------------------:|:-------------------------:
+![ ](screenshots/pipedrive.png) | ![ ](screenshots/s1.png)
+![ ](screenshots/s2.png) | ![ ](screenshots/s3.png)
+![ ](screenshots/s4.png) | ![ ](screenshots/s5.png)
 
 ## Try it
 
 - Download the zip from release page: [https://github.com/ringcentral/pipedrive-embeddable-ringcentral-phone-spa/releases](https://github.com/ringcentral/pipedrive-embeddable-ringcentral-phone-spa/releases)
 - Unpack it, get a dist folder, open your chrome extension page(chrome://extensions/), click load unpacked, select the dist folder
 - Go to `pipedrive.com` to check
+- Make sure you ***turn off*** `Block third-party cookies` in `chrome://settings/content/cookies`
+- Make sure you ***turn off*** `Block third-party cookies` in `chrome://settings/content/cookies`
 
 ## Build and Use
 
@@ -69,6 +78,10 @@ npm start
     appServer: 'your ringCentral app Auth Server URL'
   },
 ```
+
+## Changelog
+
+Just visit [release page](https://github.com/ringcentral/pipedrive-embeddable-ringcentral-phone-spa/releases)
 
 ## Credits
 
