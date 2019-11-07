@@ -20,10 +20,6 @@ const to1 = path.resolve(
   __dirname,
   'dist/icons'
 )
-const f2 = path.resolve(
-  __dirname,
-  'node_modules/jsstore/dist/jsstore.min.js'
-)
 const f3 = path.resolve(
   __dirname,
   'node_modules/jsstore/dist/jsstore.worker.min.js'
@@ -148,10 +144,6 @@ var config = {
     new CopyWebpackPlugin([{
       from,
       to: to1,
-      force: true
-    }, {
-      from: f2,
-      to: to2,
       force: true
     }, {
       from: f3,
