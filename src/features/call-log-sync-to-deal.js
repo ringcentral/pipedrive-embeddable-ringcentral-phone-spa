@@ -59,6 +59,8 @@ async function syncToDeal (form, deal) {
     ...form,
     deal_id: deal.id
   }
+  // data.participants = []
+  // data.person_id = ''
   let res = await fetch.post(url, data)
   let success = res && res.data
   if (success) {
@@ -74,4 +76,5 @@ export async function syncToDeals (form) {
   for (let deal of deals) {
     await syncToDeal(form, deal)
   }
+  return deals.length
 }

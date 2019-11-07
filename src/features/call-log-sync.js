@@ -109,6 +109,7 @@ async function getSyncContacts (body) {
  */
 async function doSync (body, formData) {
   let contacts = await getSyncContacts(body)
+  // console.log(contacts, 'ccccc')
   if (!contacts.length) {
     return notify('No related contacts')
   }
@@ -207,12 +208,14 @@ async function doSyncOne (contact, body, formData) {
     notification_language_id: 1,
     assigned_to_user_id: userId
   }
-  let res = await fetch.post(url, bd)
-  let success = res && res.data
-  if (success) {
-    notifySyncSuccess({ id, logType })
-  } else {
-    notify('call log sync to third party failed', 'warn')
+  let rr = await syncToDeals(bd)
+  if (!rr) {
+    let res = await fetch.post(url, bd)
+    let success = res && res.data
+    if (success) {
+      notifySyncSuccess({ id, logType })
+    } else {
+      notify('call log sync to third party failed', 'warn')
+    }
   }
-  await syncToDeals(bd)
 }
