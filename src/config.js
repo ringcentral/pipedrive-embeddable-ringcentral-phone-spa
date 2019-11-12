@@ -203,6 +203,13 @@ export function thirdPartyServiceConfig (serviceName) {
       type === 'rc-active-call-notify'
     ) {
       showContactInfoPanel(call)
+    } else if (type === 'rc-region-settings-notify') {
+      const prevCountryCode = window.rc.countryCode || 'US'
+      const newCountryCode = data.countryCode
+      if (prevCountryCode !== newCountryCode) {
+        reSyncData()
+      }
+      window.rc.countryCode = data.countryCode
     }
     if (type !== 'rc-post-message-request') {
       return
