@@ -341,7 +341,7 @@ export function thirdPartyServiceConfig (serviceName) {
  */
 export async function initThirdParty () {
   window.rc.countryCode = await ls.get('rc-country-code') || undefined
-  console.log('rc.countryCode:', rc.countryCode)
+  console.log('rc.countryCode:', window.rc.countryCode)
   let userAuthed = await ls.get('userAuthed') || false
   window.rc.userAuthed = userAuthed
   window.rc.syncTimestamp = await ls.get('syncTimestamp') || null
