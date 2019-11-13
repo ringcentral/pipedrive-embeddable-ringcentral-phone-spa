@@ -205,11 +205,14 @@ export function thirdPartyServiceConfig (serviceName) {
       showContactInfoPanel(call)
     } else if (type === 'rc-region-settings-notify') {
       const prevCountryCode = window.rc.countryCode || 'US'
+      console.log('prev country code:', prevCountryCode)
       const newCountryCode = data.countryCode
+      console.log('new country code:', newCountryCode)
       if (prevCountryCode !== newCountryCode) {
         reSyncData()
       }
-      window.rc.countryCode = data.countryCode
+      window.rc.countryCode = newCountryCode
+      ls.set('rc-country-code', newCountryCode)
     }
     if (type !== 'rc-post-message-request') {
       return
@@ -337,6 +340,8 @@ export function thirdPartyServiceConfig (serviceName) {
  * could init dom insert etc here
  */
 export async function initThirdParty () {
+  window.rc.countryCode = await ls.get('rc-country-code') || undefined
+  console.log('rc.countryCode:', rc.countryCode)
   let userAuthed = await ls.get('userAuthed') || false
   window.rc.userAuthed = userAuthed
   window.rc.syncTimestamp = await ls.get('syncTimestamp') || null
