@@ -45,7 +45,7 @@ let {
  */
 function formatData (data) {
   return data.data.map(d => {
-    let { id, name, owner_id: ownerId, label, phone, email, org_id: orgId } = d
+    let { id, name, owner_id: ownerId, label = '', phone, email, org_id: orgId } = d
     let res = {
       id: id + '',
       name,
@@ -60,7 +60,7 @@ function formatData (data) {
       emails: email.map(r => r.value),
       type: serviceName,
       owner_id: ownerId + '',
-      label
+      label: (label || '').toString()
     }
     res.phoneNumbersForSearch = res
       .phoneNumbers.map(d => formatPhone(d.phoneNumber)).join(',')
