@@ -170,11 +170,13 @@ async function doSyncOne (contact, body, formData) {
   let time = _.get(body, 'call.startTime') ||
     _.get('body', 'conversation.messages[0].creationTime')
   let dueDate = moment.utc(time).format('YYYY-MM-DD')
-  let s = (duration % 60).toString()
-  let m = Math.floor(duration / 60).toString()
-  s = s.length > 1 ? s : '0' + s
+  let h = Math.floor(duration / 3600).toString()
+  let m = Math.ceil((duration - h * 3600) / 60).toString()
+  // let s = Math.floor(duration % 60).toString()
+  h = h.length > 1 ? h : '0' + h
+  // s = s.length > 1 ? s : '0' + s
   m = m.length > 1 ? m : '0' + m
-  duration = `${m}:${s}`
+  duration = `${h}:${m}`
   let dueTime = moment.utc(time).format('HH:mm')
   let mainBody = ''
   let ctype = _.get(body, 'conversation.type')
