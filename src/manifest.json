@@ -1,6 +1,6 @@
 {
   "name": "Ringcentral Embeddable Widgets for Pipedrive",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "Add RingCentral Embeddable Voice widgets to Pipedrive",
   "permissions": [
     "http://*/",
