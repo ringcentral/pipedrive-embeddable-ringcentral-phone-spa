@@ -28,7 +28,7 @@ function clean () {
   clearTimeout(handler)
 }
 
-async function getContactInfo (body, serviceName) {
+export async function getContactInfo (body, serviceName) {
   if (!body) {
     return
   }
@@ -80,7 +80,7 @@ async function getContactInfo (body, serviceName) {
     let f = formatPhoneLocal(_.get(body, 'call.from.phoneNumber') ||
       _.get(body, 'conversation.self.phoneNumber') || '')
     froms = `<li>
-      ${fromText}: <b>${f}${froms ? '(' + froms + ')' : ''}</b>
+      <b>${fromText}:</b> ${f}${froms ? '(' + froms + ')' : ''}
     </li>`
   }
   tos = tos
@@ -92,7 +92,7 @@ async function getContactInfo (body, serviceName) {
     tos = tos.join(', ')
     let t = formatPhoneLocal(_.get(body, 'call.to.phoneNumber') || '')
     tos = `<li>
-      ${toText}: <b>${t}${tos ? '(' + tos + ')' : '-'}</b>
+      <b>${toText}:</b> ${t}${tos ? '(' + tos + ')' : '-'}</b>
     </li>
     `
   }
@@ -123,18 +123,19 @@ export async function createForm (body, serviceName, onSubmit) {
   let dom = createElementFromHTML(`
     <form class="rc-sync-form animate">
       <div class="rc-sync-inner rc-pd2">
-        <h4 class="rc-sync-title rc-pd1b">
+        <h3 class="rc-sync-title rc-pd1b bold">
           Sync call log to ${serviceName}
-        </h4>
+        </h3>
         <ul class="rc-pd1b">
           ${froms}${tos}
           <li>
-            time: <b>${time}</b>
+            <b>time:</b> ${time}
           </li>
         </ul>
         <textarea
           value=""
           class="rc-sync-area"
+          rows="5"
           placeholder="optional description"
         ></textarea>
         <div class="rc-pd1b rc-sync-btns">
@@ -159,7 +160,7 @@ export async function createForm (body, serviceName, onSubmit) {
   // }
   let old = document.querySelector('.rc-sync-form')
   old && old.remove()
-  document.body.appendChild(dom)
+  document.getElementById('Pipedrive-rc').appendChild(dom)
   handler = setTimeout(() => {
     dom.classList.add('rc-sync-show')
   }, 100)

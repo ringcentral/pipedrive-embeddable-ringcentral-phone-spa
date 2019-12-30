@@ -3,7 +3,7 @@
  */
 
 import { thirdPartyConfigs } from 'ringcentral-embeddable-extension-common/src/common/app-config'
-import { createForm, formatPhoneLocal } from './call-log-sync-form'
+import { createForm, formatPhoneLocal, getContactInfo } from './call-log-sync-form'
 import {
   showAuthBtn
 } from './auth'
@@ -50,6 +50,13 @@ export async function syncCallLogToThirdParty (body) {
     return isManuallySync ? showAuthBtn() : null
   }
   if (showCallLogSyncForm && isManuallySync) {
+    let contactRelated = await getContactInfo(body, serviceName)
+    if (
+      !contactRelated ||
+      (!contactRelated.froms && !contactRelated.tos)
+    ) {
+      return notify('No related contact')
+    }
     return createForm(
       body,
       serviceName,
