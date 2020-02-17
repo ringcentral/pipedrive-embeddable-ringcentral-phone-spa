@@ -157,6 +157,7 @@ export function thirdPartyServiceConfig (serviceName) {
     name: serviceName,
     // // show contacts in ringcentral widgets
     contactsPath: '/contacts',
+    contactIcon: 'https://github.com/ringcentral/pipedrive-embeddable-ringcentral-phone-spa/blob/master/src/pipedrive-logo.png?raw=true',
     contactSearchPath: '/contacts/search',
     contactMatchPath: '/contacts/match',
 
