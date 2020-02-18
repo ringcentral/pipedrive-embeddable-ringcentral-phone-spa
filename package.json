@@ -9,11 +9,13 @@
   ],
   "scripts": {
     "build": "./node_modules/.bin/cross-env NODE_ENV=production ./node_modules/.bin/webpack --progress -w",
+    "build-p": "./node_modules/.bin/cross-env NODE_ENV=production ./node_modules/.bin/webpack --progress",
+    "clean": "rm -rf dist",
     "start": "npm run build",
     "postinstall": "node bin/post-install",
     "lint": "./node_modules/.bin/standard",
     "fix": "./node_modules/.bin/standard --fix",
-    "pack": "node bin/pack"
+    "pack": "npm run clean && npm run build-p && node bin/pack"
   },
   "repository": {
     "type": "git",
