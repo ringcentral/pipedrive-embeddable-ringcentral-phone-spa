@@ -109,12 +109,15 @@ export const hoverShowClickToCallButton = [
 
     // function to get phone numbers, suport async function
     getContactPhoneNumbers: async elem => {
-      let phoneNodes = elem.querySelectorAll('td[data-field="phone"] .gridCell__link')
+      let phoneNodes = elem.querySelectorAll('td[data-field="phone"] .value button')
       return Array.from(phoneNodes)
         .map((p, i) => {
-          let number = (p.getAttribute('href') || '').replace('callto:', '')
+          let nn = p.querySelector('span:not([class])')
+          let number = nn ? nn.textContent.trim() : ''
           let title = p.querySelector('.gridCell__valueRemark')
           title = title ? title.textContent.replace(/\(|\)/g, '') : 'Direct'
+          title = title.trim()
+          number = number.replace(title, '')
           return {
             id: 'p_' + i,
             title,
