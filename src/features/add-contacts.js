@@ -73,4 +73,4 @@ async function addAll (all) {
   }
 }
 
-addAll(2000)
+addAll(400)

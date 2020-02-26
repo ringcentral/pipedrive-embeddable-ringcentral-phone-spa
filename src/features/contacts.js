@@ -12,6 +12,7 @@ import {
   formatPhone,
   host
 } from 'ringcentral-embeddable-extension-common/src/common/helpers'
+import { setCache, getCache } from 'ringcentral-embeddable-extension-common/src/common/cache'
 import fetch from 'ringcentral-embeddable-extension-common/src/common/fetch'
 import { thirdPartyConfigs } from 'ringcentral-embeddable-extension-common/src/common/app-config'
 import {
@@ -25,9 +26,10 @@ import { getAllDeals } from './deals'
 import { getSessionToken } from './common'
 // import './add-contacts'
 
-let {
+const {
   serviceName
 } = thirdPartyConfigs
+const lastSyncOffset = 'last-sync-offset'
 
 /**
  * convert pipedrive contact data to ringcentral format data
@@ -112,7 +114,7 @@ async function fetchAllContacts () {
   console.debug('running fetchAllContacts')
   window.rc.isFetchingContacts = true
   loadingContacts()
-  let start = 0
+  let start = await getCache(lastSyncOffset) || 0
   let hasMore = true
   await remove().catch(e => {
     console.log(e.stack)
@@ -128,7 +130,9 @@ async function fetchAllContacts () {
     hasMore = _.get(res, 'additional_data.pagination.more_items_in_collection')
     console.debug('fetching, start:', start, ', has more:', hasMore)
     await insert(final).catch(console.debug)
+    await setCache(lastSyncOffset, start, 'never')
   }
+  await setCache(lastSyncOffset, 0, 'never')
   let now = Date.now()
   window.rc.syncTimestamp = now
   await ls.set('syncTimestamp', now)
@@ -153,22 +157,11 @@ export const getContacts = async function (page = 1) {
     showAuthBtn()
     return final
   }
-  loadingContacts()
   let cached = await getByPage(page).catch(e => console.log(e.stack))
   if (cached && cached.result && cached.result.length) {
     console.debug('use cache')
-    stopLoadingContacts()
     return cached
   }
-  const ps = 100
-  let start = (page - 1) * ps
-  let res = await getContact(start)
-  if (!res || !res.data) {
-    return final
-  }
-  final.result = formatData(res)
-  final.hasMore = _.get(res, 'additional_data.pagination.more_items_in_collection')
-  stopLoadingContacts()
   fetchAllContacts()
   return final
 }
