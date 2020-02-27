@@ -20,15 +20,18 @@ Created with [ringcentral-embeddable-extension-factory](https://github.com/ringc
 
 ## Video
 
-[https://youtu.be/ztR4k9dWtxE](https://youtu.be/ztR4k9dWtxE)
+[https://youtu.be/RUikB2rtLvc](https://youtu.be/RUikB2rtLvc)
 
 ## Screenshots
 
 | screenshots            |  screenshots |
 :-------------------------:|:-------------------------:
-![ ](screenshots/pipedrive.png) | ![ ](screenshots/s1.png)
-![ ](screenshots/s2.png) | ![ ](screenshots/s3.png)
-![ ](screenshots/s4.png) | ![ ](screenshots/s5.png)
+![ ](screenshots/s4-min.png) | ![ ](screenshots/s1-min.png)
+![ ](screenshots/s2-min.png) | ![ ](screenshots/s3-min.png)
+![ ](screenshots/s4-min.png) | ![ ](screenshots/s5-min.png)
+![ ](screenshots/s6-min.png) | ![ ](screenshots/s7-min.png)
+![ ](screenshots/s9-min.png) | ![ ](screenshots/s8-min.png)
+
 
 ## Try it
 
