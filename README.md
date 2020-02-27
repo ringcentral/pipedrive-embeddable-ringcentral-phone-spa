@@ -28,7 +28,7 @@ Created with [ringcentral-embeddable-extension-factory](https://github.com/ringc
 :-------------------------:|:-------------------------:
 ![ ](screenshots/s4-min.png) | ![ ](screenshots/s1-min.png)
 ![ ](screenshots/s2-min.png) | ![ ](screenshots/s3-min.png)
-![ ](screenshots/s4-min.png) | ![ ](screenshots/s5-min.png)
+![ ](screenshots/s10-min.png) | ![ ](screenshots/s5-min.png)
 ![ ](screenshots/s6-min.png) | ![ ](screenshots/s7-min.png)
 ![ ](screenshots/s9-min.png) | ![ ](screenshots/s8-min.png)
 
