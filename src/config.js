@@ -115,9 +115,11 @@ export const hoverShowClickToCallButton = [
           let nn = p.querySelector('span:not([class])')
           let number = nn ? nn.textContent.trim() : ''
           let title = p.querySelector('.gridCell__valueRemark')
-          title = title ? title.textContent.replace(/\(|\)/g, '') : 'Direct'
+          let title0 = title ? title.textContent : 'Direct'
+          title0 = title0.trim()
+          title = title0.replace(/\(|\)/g, '')
           title = title.trim()
-          number = number.replace(title, '')
+          number = number.replace(title0, '')
           return {
             id: 'p_' + i,
             title,
