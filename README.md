@@ -20,7 +20,7 @@ Created with [ringcentral-embeddable-extension-factory](https://github.com/ringc
 
 ## Video
 
-[https://youtu.be/RUikB2rtLvc](https://youtu.be/RUikB2rtLvc)
+[https://youtu.be/lhjPLU95B6Q](https://youtu.be/lhjPLU95B6Q)
 
 ## Screenshots
 
