@@ -59,6 +59,7 @@ async function syncToDeal (form, deal) {
     ...form,
     deal_id: deal.id
   }
+  delete data.person_id
   // data.participants = []
   // data.person_id = ''
   let res = await fetch.post(url, data)
@@ -77,4 +78,11 @@ export async function syncToDeals (form) {
     await syncToDeal(form, deal)
   }
   return deals.length
+}
+
+export async function getDealId (form) {
+  let deals = await searchByPersonId(form.person_id)
+  return deals
+    .filter(d => d.person_id.toString() === form.person_id.toString())
+    .map(d => d.id)[0]
 }

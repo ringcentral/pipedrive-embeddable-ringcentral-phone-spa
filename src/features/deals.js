@@ -151,7 +151,7 @@ export async function searchByPersonId (personId) {
 // }
 
 function getDeals (token, start, userId = '') {
-  let url = `${host}/v1/deals?limit=500&person_id=${userId}&start=${start}&get_summary=0&totals_convert_currency=default_currency&session_token=${token}&strict_mode=true&status=open`
+  let url = `${host}/v1/deals?limit=500&person_id=${userId}&start=${start}&get_summary=0&totals_convert_currency=default_currency&session_token=${token}&strict_mode=true&status=open&sort=update_time%20ASC`
   return fetch.get(url)
 }
 

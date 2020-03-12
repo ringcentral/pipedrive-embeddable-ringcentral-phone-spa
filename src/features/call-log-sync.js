@@ -20,7 +20,7 @@ import {
   match
 } from 'ringcentral-embeddable-extension-common/src/common/db'
 import { getUserId } from './activities'
-import { notifySyncSuccess, syncToDeals } from './call-log-sync-to-deal'
+import { notifySyncSuccess, getDealId } from './call-log-sync-to-deal'
 
 let {
   showCallLogSyncForm,
@@ -206,14 +206,15 @@ async function doSyncOne (contact, body, formData) {
     notification_language_id: 1,
     assigned_to_user_id: userId
   }
-  let rr = await syncToDeals(bd)
-  if (!rr) {
-    let res = await fetch.post(url, bd)
-    let success = res && res.data
-    if (success) {
-      notifySyncSuccess({ id, logType })
-    } else {
-      notify('call log sync to third party failed', 'warn')
-    }
+  let dealId = await getDealId(bd)
+  if (dealId) {
+    bd.deal_id = dealId
+  }
+  let res = await fetch.post(url, bd)
+  let success = res && res.data
+  if (success) {
+    notifySyncSuccess({ id, logType })
+  } else {
+    notify('call log sync to third party failed', 'warn')
   }
 }
