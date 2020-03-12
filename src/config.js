@@ -295,7 +295,7 @@ export function thirdPartyServiceConfig (serviceName) {
         return showAuthBtn()
       }
       let phoneNumbers = _.get(data, 'body.phoneNumbers') || []
-      let res = await match(phoneNumbers)
+      let res = await match(phoneNumbers).catch(console.debug)
       rc.postMessage({
         type: 'rc-post-message-response',
         responseId: data.requestId,
