@@ -139,6 +139,7 @@ async function fetchAllContacts () {
   window.rc.isFetchingContacts = false
   stopLoadingContacts()
   notifyReSyncContacts()
+  console.debug('end sync contacts')
   setTimeout(getAllDeals, 600)
 }
 

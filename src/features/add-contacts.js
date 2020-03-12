@@ -52,24 +52,23 @@ async function addOne (i) {
         primary: true
       }
     ],
-    visible_to: 3,
-    owner_id: 10862654
+    visible_to: 3
   }
   console.log(i)
   let res = await fetch.post(url, da)
   console.log(res)
 }
 
-function wait (ms) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms)
-  })
-}
+// function wait (ms) {
+//   return new Promise((resolve) => {
+//     setTimeout(resolve, ms)
+//   })
+// }
 
 async function addAll (all) {
   for (let i = 0; i < all; i++) {
     await addOne(i)
-    wait(500)
+    // wait(500)
   }
 }
 

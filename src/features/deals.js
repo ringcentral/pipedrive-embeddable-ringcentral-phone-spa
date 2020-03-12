@@ -10,14 +10,15 @@ import fetch from 'ringcentral-embeddable-extension-common/src/common/fetch'
 import { thirdPartyConfigs } from 'ringcentral-embeddable-extension-common/src/common/app-config'
 import _ from 'lodash'
 import * as ls from 'ringcentral-embeddable-extension-common/src/common/ls'
-import {
-  connection
-} from 'ringcentral-embeddable-extension-common/src/common/db'
+// import {
+//   connection
+// } from 'ringcentral-embeddable-extension-common/src/common/db'
+import * as JsStore from 'jsstore'
 
 const {
   appName
 } = thirdPartyConfigs
-
+const connection = new JsStore.Connection()
 const dbName = appName.replace(/-/g, '_') + '_deals'
 const tableName = 'Deal'
 
@@ -152,6 +153,7 @@ function getDeals (token, start) {
 }
 
 export async function getAllDeals () {
+  console.debug('start sync deals')
   if (window.rc.isFetchingDeals) {
     return
   }

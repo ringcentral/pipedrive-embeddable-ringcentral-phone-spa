@@ -40,7 +40,7 @@ async function addOne (i) {
   let da = {
     visible_to: 3,
     currency: 'CNY',
-    person_id: 12877,
+    person_id: 1,
     title: 'html5beta.com deal' + i,
     value: '8888',
     stage_id: '1',
@@ -64,4 +64,4 @@ async function addAll (all) {
   }
 }
 
-addAll(2000)
+addAll(200)
