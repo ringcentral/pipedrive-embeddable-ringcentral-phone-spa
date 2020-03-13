@@ -83,6 +83,6 @@ export async function syncToDeals (form) {
 export async function getDealId (form) {
   let deals = await searchByPersonId(form.person_id)
   return deals
-    .filter(d => d.person_id.toString() === form.person_id.toString())
+    .filter(d => d && d.person_id && d.person_id.toString() === form.person_id.toString())
     .map(d => d.id)[0]
 }
