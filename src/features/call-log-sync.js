@@ -85,7 +85,7 @@ async function getSyncContacts (body) {
       ...body.conversation.correspondents.map(d => d.phoneNumber)
     ]
   }
-  all = all.map(s => formatPhone(s))
+  all = all.map(s => formatPhone(s)).filter(d => d)
   let contacts = await match(all)
   let arr = Object.keys(contacts).reduce((p, k) => {
     return [
