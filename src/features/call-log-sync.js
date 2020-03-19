@@ -206,7 +206,7 @@ async function doSyncOne (contact, body, formData) {
     notification_language_id: 1,
     assigned_to_user_id: userId
   }
-  let dealId = await getDealId(bd)
+  let dealId = await getDealId(contact)
   if (dealId) {
     bd.deal_id = dealId
   }

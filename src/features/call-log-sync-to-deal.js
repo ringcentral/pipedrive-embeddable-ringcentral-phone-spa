@@ -2,11 +2,11 @@
  * sync call log to deal
  */
 
-import fetch from 'ringcentral-embeddable-extension-common/src/common/fetch'
+// import fetch from 'ringcentral-embeddable-extension-common/src/common/fetch'
 import {
   host, notify
 } from 'ringcentral-embeddable-extension-common/src/common/helpers'
-import { getSessionToken } from './common'
+// import { getSessionToken } from './common'
 import extLinkSvg from 'ringcentral-embeddable-extension-common/src/common/link-external.svg'
 import { thirdPartyConfigs } from 'ringcentral-embeddable-extension-common/src/common/app-config'
 import { searchByPersonId } from './deals'
@@ -44,45 +44,44 @@ export function notifySyncSuccess ({
   notify(msg, type, 9000)
 }
 
-export async function getDeals () {
-  let token = getSessionToken()
-  let url = `${host}/api/v1/pipelines/1/deals?limit=500&start=0&get_summary=0&totals_convert_currency=default_currency&session_token=${token}&strict_mode=true&status=open`
-  let res = await fetch.get(url)
-  let success = res && res.data
-  return success || []
-}
+// async function getDeals () {
+//   let token = getSessionToken()
+//   let url = `${host}/api/v1/pipelines/1/deals?limit=500&start=0&get_summary=0&totals_convert_currency=default_currency&session_token=${token}&strict_mode=true&status=open`
+//   let res = await fetch.get(url)
+//   let success = res && res.data
+//   return success || []
+// }
 
-async function syncToDeal (form, deal) {
-  let token = getSessionToken()
-  let url = `${host}/api/v1/activities?session_token=${token}&strict_mode=true`
-  let data = {
-    ...form,
-    deal_id: deal.id
-  }
-  delete data.person_id
-  // data.participants = []
-  // data.person_id = ''
-  let res = await fetch.post(url, data)
-  let success = res && res.data
-  if (success) {
-    notifySyncSuccess({ id: form.person_id, logType: form.subject })
-  } else {
-    notify('call log sync to deals failed', 'warn')
-    console.log('call log sync to deals failed')
-  }
-}
+// async function syncToDeal (form, deal) {
+//   let token = getSessionToken()
+//   let url = `${host}/api/v1/activities?session_token=${token}&strict_mode=true`
+//   let data = {
+//     ...form,
+//     deal_id: deal.id
+//   }
+//   delete data.person_id
+//   // data.participants = []
+//   // data.person_id = ''
+//   let res = await fetch.post(url, data)
+//   let success = res && res.data
+//   if (success) {
+//     notifySyncSuccess({ id: form.person_id, logType: form.subject })
+//   } else {
+//     notify('call log sync to deals failed', 'warn')
+//     console.log('call log sync to deals failed')
+//   }
+// }
 
-export async function syncToDeals (form) {
-  let deals = await searchByPersonId(form.person_id)
-  for (let deal of deals) {
-    await syncToDeal(form, deal)
-  }
-  return deals.length
-}
+// async function syncToDeals (form) {
+//   let deals = await searchByPersonId(form.person_id)
+//   for (let deal of deals) {
+//     await syncToDeal(form, deal)
+//   }
+//   return deals.length
+// }
 
-export async function getDealId (form) {
-  let deals = await searchByPersonId(form.person_id)
+export async function getDealId (contact) {
+  let deals = await searchByPersonId(contact)
   return deals
-    .filter(d => d && d.person_id && d.person_id.toString() === form.person_id.toString())
     .map(d => d.id)[0]
 }

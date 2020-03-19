@@ -9,6 +9,7 @@ import {
 import fetch from 'ringcentral-embeddable-extension-common/src/common/fetch'
 // import { thirdPartyConfigs } from 'ringcentral-embeddable-extension-common/src/common/app-config'
 import _ from 'lodash'
+import { addFilter, delFilter } from './filter'
 // import * as ls from 'ringcentral-embeddable-extension-common/src/common/ls'
 // import {
 //   connection
@@ -122,9 +123,13 @@ import _ from 'lodash'
 //   })
 // }
 
-export async function searchByPersonId (personId) {
+export async function searchByPersonId (contact) {
   let token = getSessionToken()
-  const res = await getDeals(token, 0, personId)
+  const filterId = await addFilter(contact)
+  const res = await getDeals(token, 0, contact.id, filterId)
+  if (filterId) {
+    await delFilter(filterId)
+  }
   if (!res || !res.data) {
     return []
   }
@@ -150,8 +155,8 @@ export async function searchByPersonId (personId) {
 //   })
 // }
 
-function getDeals (token, start, userId = '') {
-  let url = `${host}/v1/deals?limit=500&person_id=${userId}&start=${start}&get_summary=0&totals_convert_currency=default_currency&session_token=${token}&strict_mode=true&status=open&sort=update_time%20ASC`
+function getDeals (token, start, userId = '', filterId = '') {
+  let url = `${host}/v1/deals?limit=500&person_id=${userId}&start=${start}&get_summary=0&totals_convert_currency=default_currency&session_token=${token}&strict_mode=true&status=open&sort=update_time%20ASC&filter_id=${filterId}`
   return fetch.get(url)
 }
 
