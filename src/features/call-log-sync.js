@@ -21,6 +21,7 @@ import {
 } from 'ringcentral-embeddable-extension-common/src/common/db'
 import { getUserId } from './activities'
 import { notifySyncSuccess, getDealId } from './call-log-sync-to-deal'
+import * as ls from 'ringcentral-embeddable-extension-common/src/common/ls'
 
 let {
   showCallLogSyncForm,
@@ -60,10 +61,10 @@ export async function syncCallLogToThirdParty (body) {
     return createForm(
       body,
       serviceName,
-      (formData) => doSync(body, formData)
+      (formData) => doSync(body, formData, isManuallySync)
     )
   } else {
-    doSync(body, {})
+    doSync(body, {}, isManuallySync)
   }
 }
 
@@ -103,20 +104,21 @@ async function getSyncContacts (body) {
  * @param {*} body
  * @param {*} formData
  */
-async function doSync (body, formData) {
+async function doSync (body, formData, isManuallySync) {
   let contacts = await getSyncContacts(body)
   // console.log(contacts, 'ccccc')
   if (!contacts.length) {
     return notify('No related contacts')
   }
   for (let contact of contacts) {
-    await doSyncOne(contact, body, formData)
+    await doSyncOne(contact, body, formData, isManuallySync)
   }
 }
 
 function buildMsgs (body) {
   let msgs = _.get(body, 'conversation.messages')
-  let arr = msgs.map(m => {
+  const arr = []
+  for (const m of msgs) {
     let desc = m.direction === 'Outbound'
       ? 'to'
       : 'from'
@@ -124,14 +126,18 @@ function buildMsgs (body) {
       ? m.to
       : [m.from]
     n = n.map(m => formatPhoneLocal(m.phoneNumber)).join(', ')
-    return `<li><b>${m.subject}</b> - ${desc} <b>${n}</b> - ${moment(m.creationTime).format('MMM DD, YYYY HH:mm')}</li>`
-  })
-  return `<h3>SMS logs:</h3><ul>${arr.join('')}</ul>`
+    arr.push({
+      body: `<p>SMS: <b>${m.subject}</b> - ${desc} <b>${n}</b> - ${moment(m.creationTime).format('MMM DD, YYYY HH:mm')}</p>`,
+      id: m.id
+    })
+  }
+  return arr
 }
 
 function buildVoiceMailMsgs (body) {
   let msgs = _.get(body, 'conversation.messages')
-  let arr = msgs.map(m => {
+  const arr = []
+  for (const m of msgs) {
     let isOut = m.direction === 'Outbound'
     let desc = isOut
       ? 'to'
@@ -141,9 +147,33 @@ function buildVoiceMailMsgs (body) {
       : [m.from]
     n = n.map(m => formatPhoneLocal(m.phoneNumber || m.extensionNumber)).join(', ')
     let links = m.attachments.map(t => t.link).join(', ')
-    return `<li>${links} - ${n ? desc : ''} <b>${n}</b> ${moment(m.creationTime).format('MMM DD, YYYY HH:mm')}</li>`
-  })
-  return `<h3>Voice mail logs:</h3><ul>${arr.join('')}</ul>`
+    arr.push({
+      body: `<p>Voice mail: ${links} - ${n ? desc : ''} <b>${n}</b> ${moment(m.creationTime).format('MMM DD, YYYY HH:mm')}</p>`,
+      id: m.id
+    })
+  }
+  return arr
+}
+
+function buildKey (id) {
+  return `rc-log-${userId}-${id}`
+}
+
+async function saveLog (id, engageId) {
+  const key = buildKey(id)
+  await ls.set(key, engageId)
+}
+
+async function filterLoggered (arr) {
+  const res = []
+  for (const m of arr) {
+    const key = buildKey(m.id)
+    const ig = await ls.get(key)
+    if (!ig) {
+      res.push(m)
+    }
+  }
+  return res
 }
 
 /**
@@ -153,7 +183,7 @@ function buildVoiceMailMsgs (body) {
  * @param {*} body
  * @param {*} formData
  */
-async function doSyncOne (contact, body, formData) {
+async function doSyncOne (contact, body, formData, isManuallySync) {
   let { id, org_id: oid } = contact
   let toNumber = _.get(body, 'call.to.phoneNumber')
   let fromNumber = _.get(body, 'call.from.phoneNumber')
@@ -162,6 +192,9 @@ async function doSyncOne (contact, body, formData) {
     ? `<p>Recording link: ${body.call.recording.link}</p>`
     : ''
   let token = getSessionToken()
+  let externalId = body.id ||
+    _.get(body, 'call.sessionId') ||
+    _.get(body, 'conversation.conversationLogId')
   let url = `${host}/api/v1/activities?session_token=${token}&strict_mode=true`
   let time = _.get(body, 'call.startTime') ||
     _.get('body', 'conversation.messages[0].creationTime')
@@ -185,36 +218,53 @@ async function doSyncOne (contact, body, formData) {
     mainBody = buildVoiceMailMsgs(body)
   }
   let logType = body.call ? 'Call' : ctype
-  let bodyAll = `<p>${formData.description || ''}</p><p>${mainBody}</p>${recording}`
-  let bd = {
-    due_date: dueDate,
-    due_time: dueTime,
-    duration,
-    note: bodyAll,
-    type: 'call',
-    subject: logType,
-    done: true,
-    participants: [
-      {
-        person_id: id,
-        primary_flag: true
-      }
-    ],
-    person_id: id,
-    org_id: oid,
-    deal_id: null,
-    notification_language_id: 1,
-    assigned_to_user_id: userId
+  if (!_.isArray(mainBody)) {
+    mainBody = [{
+      body: mainBody,
+      id: externalId
+    }]
   }
-  let dealId = await getDealId(contact)
-  if (dealId) {
-    bd.deal_id = dealId
+  if (!isManuallySync) {
+    mainBody = await filterLoggered(mainBody)
   }
-  let res = await fetch.post(url, bd)
-  let success = res && res.data
-  if (success) {
-    notifySyncSuccess({ id, logType })
-  } else {
-    notify('call log sync to third party failed', 'warn')
+  let bodyAll = mainBody.map(mm => {
+    return {
+      id: mm.id,
+      body: `<p>${formData.description || ''}</p><p>${mm.body}</p>${recording}`
+    }
+  })
+  for (const uit of bodyAll) {
+    let bd = {
+      due_date: dueDate,
+      due_time: dueTime,
+      duration,
+      note: uit.body,
+      type: 'call',
+      subject: logType,
+      done: true,
+      participants: [
+        {
+          person_id: id,
+          primary_flag: true
+        }
+      ],
+      person_id: id,
+      org_id: oid,
+      deal_id: null,
+      notification_language_id: 1,
+      assigned_to_user_id: userId
+    }
+    let dealId = await getDealId(contact)
+    if (dealId) {
+      bd.deal_id = dealId
+    }
+    let res = await fetch.post(url, bd)
+    let success = res && res.data
+    if (success) {
+      await saveLog(uit.id, res.data.id)
+      notifySyncSuccess({ id, logType })
+    } else {
+      notify('call log sync to third party failed', 'warn')
+    }
   }
 }
