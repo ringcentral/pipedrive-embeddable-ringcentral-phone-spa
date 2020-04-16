@@ -19,7 +19,7 @@ const {
 
 async function run () {
   rm('-rf', 'dist/embeddable')
-  rm('-rf', 'ringcentral-embeddable-extension-build')
+  rm('-rf', 'extension-build.zip')
   exec('wget https://github.com/ringcentral/ringcentral-embeddable/archive/extension-build.zip')
   exec('unzip -a extension-build.zip')
   cp('-r', 'ringcentral-embeddable-extension-build', 'dist/embeddable')
