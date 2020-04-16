@@ -50,6 +50,9 @@ Created with [ringcentral-embeddable-extension-factory](https://github.com/ringc
 # install dependencies, requires nodejs8.10+
 npm i
 
+# download embeddable
+npm run down
+
 # create config file, and set proper thirdPartyConfigs.serviceName
 cp config.sample.js config.js
 

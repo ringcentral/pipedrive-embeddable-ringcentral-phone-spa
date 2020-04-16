@@ -4,14 +4,16 @@ const sysConfigDefault = require('./config.default')
 const ExtraneousFileCleanupPlugin = require('webpack-extraneous-file-cleanup-plugin')
 const path = require('path')
 const LodashModuleReplacementPlugin = require('lodash-webpack-plugin')
-const pack = require('./package.json')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
+const pack = require('./package.json')
+
 const stylusSettingPlugin = new webpack.LoaderOptionsPlugin({
   test: /\.styl$/,
   stylus: {
     preferPathResolver: 'webpack'
   }
 })
+
 const from = path.resolve(
   __dirname,
   'node_modules/ringcentral-embeddable-extension-common/src/icons'
@@ -20,11 +22,24 @@ const to1 = path.resolve(
   __dirname,
   'dist/icons'
 )
+
+// const f2 = path.resolve(
+//   __dirname,
+//   'node_modules/jsstore/dist/jsstore.min.js'
+// )
+const f31 = path.resolve(
+  __dirname,
+  'node_modules/react/umd/react.production.min.js'
+)
+const f32 = path.resolve(
+  __dirname,
+  'node_modules/react-dom/umd/react-dom.production.min.js'
+)
 const f3 = path.resolve(
   __dirname,
   'node_modules/jsstore/dist/jsstore.worker.min.js'
 )
-const to2 = path.resolve(
+const to4 = path.resolve(
   __dirname,
   'dist'
 )
@@ -65,16 +80,36 @@ var config = {
       path.join(process.cwd(), 'node_modules')
     ]
   },
+  externals: {
+    react: 'React',
+    'react-dom': 'ReactDOM'
+  },
   optimization: {
-    minimize: false
-    // minimize: sysConfigDefault.minimize
+    minimize: sysConfigDefault.minimize
   },
   module: {
     rules: [
       {
-        test: /manifest\.json$/,
+        test: /manifest\.json$|manifest-firefox\.json$/,
         use: [
           'manifest-loader'
+        ]
+      },
+      {
+        test: /\.less$/,
+        use: [
+          {
+            loader: 'style-loader'
+          },
+          {
+            loader: 'css-loader'
+          },
+          {
+            loader: 'less-loader',
+            options: {
+              javascriptEnabled: true
+            }
+          }
         ]
       },
       {
@@ -86,7 +121,13 @@ var config = {
             options: {
               cacheDirectory: true,
               presets: [
-                '@babel/preset-env'
+                '@babel/react',
+                ['@babel/env', {
+                  targets: {
+                    chrome: 58,
+                    node: 'current'
+                  }
+                }]
               ],
               plugins: [
                 '@babel/plugin-proposal-class-properties',
@@ -102,6 +143,14 @@ var config = {
                   '@babel/plugin-transform-runtime',
                   {
                     regenerator: true
+                  }
+                ],
+                [
+                  'import',
+                  {
+                    libraryName: 'antd',
+                    libraryDirectory: 'es',
+                    style: true
                   }
                 ]
               ]
@@ -124,7 +173,7 @@ var config = {
       {
         test: /\.pug$/,
         use: [
-          'file-loader?name=../app/app.html',
+          'file-loader?name=../app/redirect.html',
           'concat-loader',
           'extract-loader',
           'html-loader',
@@ -144,9 +193,27 @@ var config = {
       from,
       to: to1,
       force: true
-    }, {
+    }, /* {
+      from: f2,
+      to: to4,
+      force: true
+    }, */ {
       from: f3,
-      to: to2,
+      to: to4,
+      force: true
+    }, /* {
+      from: f2,
+      to: to4f,
+      force: true
+    }, */
+    {
+      from: f31,
+      to: to4,
+      force: true
+    },
+    {
+      from: f32,
+      to: to4,
       force: true
     }], {}),
     new ExtraneousFileCleanupPlugin(opts),

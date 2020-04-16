@@ -37,3 +37,5 @@ npm-debug.log*
 
 docs/esdoc
 yarn.lock
+*.txt
+*.pem
