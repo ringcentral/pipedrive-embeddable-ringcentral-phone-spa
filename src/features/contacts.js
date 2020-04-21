@@ -103,7 +103,7 @@ export const getContact = async function (start = 0) {
   let token = getSessionToken()
   // let self = await getSelfInfo(token)
   // let uid = self.data.id
-  const sort = encodeURIComponent('update_time ASC')
+  const sort = encodeURIComponent('update_time DESC')
   let url = `${host}/api/v1/persons/list:(cc_email,active_flag,id,name,label,org_id,email,phone,closed_deals_count,open_deals_count,update_time,next_activity_date,owner_id,next_activity_time)?session_token=${token}&strict_mode=true&user_id=&sort=${sort}&label=&start=${start}&type=person&_=${+new Date()}`
   return fetch.get(url)
 }
