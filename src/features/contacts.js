@@ -30,7 +30,6 @@ const {
   serviceName
 } = thirdPartyConfigs
 const lastSyncOffset = 'last-sync-offset'
-const lastSyncOffsetRecent = 'last-sync-offset-recent'
 
 /**
  * convert pipedrive contact data to ringcentral format data
@@ -116,9 +115,7 @@ async function fetchAllContacts (recent) {
   console.debug('running fetchAllContacts')
   window.rc.isFetchingContacts = true
   loadingContacts()
-  const lastSync = recent
-    ? lastSyncOffsetRecent
-    : lastSyncOffset
+  const lastSync = lastSyncOffset
   let start = recent
     ? 0
     : await getCache(lastSync) || 0
