@@ -72,7 +72,7 @@ var config = {
     libraryTarget: 'var'
   },
   resolve: {
-    extensions: ['.js', '.json']
+    extensions: ['.js', '.json', 'jsx']
   },
   resolveLoader: {
     modules: [

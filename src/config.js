@@ -40,6 +40,7 @@ import {
   search,
   match
 } from 'ringcentral-embeddable-extension-common/src/common/db'
+import initReact from './lib/react-entry'
 
 let {
   pageSize = 100
@@ -244,7 +245,9 @@ export function thirdPartyServiceConfig (serviceName) {
     } else if (path === '/contacts') {
       let isMannulSync = _.get(data, 'body.type') === 'manual'
       if (isMannulSync) {
-        reSyncData()
+        window.postMessage({
+          type: 'rc-show-sync-menu'
+        }, '*')
         rc.postMessage({
           type: 'rc-post-message-response',
           responseId: data.requestId,
@@ -362,6 +365,7 @@ export async function initThirdParty () {
     notifyRCAuthed()
   }
   upgrade()
+  initReact()
 }
 
 // init call with ringcenntral button at page bottom

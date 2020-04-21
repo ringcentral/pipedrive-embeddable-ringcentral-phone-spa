@@ -30,6 +30,7 @@ const {
   serviceName
 } = thirdPartyConfigs
 const lastSyncOffset = 'last-sync-offset'
+const lastSyncOffsetRecent = 'last-sync-offset-recent'
 
 /**
  * convert pipedrive contact data to ringcentral format data
@@ -103,36 +104,47 @@ export const getContact = async function (start = 0) {
   let token = getSessionToken()
   // let self = await getSelfInfo(token)
   // let uid = self.data.id
-  let url = `${host}/api/v1/persons/list:(cc_email,active_flag,id,name,label,org_id,email,phone,closed_deals_count,open_deals_count,next_activity_date,owner_id,next_activity_time)?session_token=${token}&strict_mode=true&user_id=&sort=&label=&start=${start}&type=person&_=${+new Date()}`
+  const sort = encodeURIComponent('update_time ASC')
+  let url = `${host}/api/v1/persons/list:(cc_email,active_flag,id,name,label,org_id,email,phone,closed_deals_count,open_deals_count,update_time,next_activity_date,owner_id,next_activity_time)?session_token=${token}&strict_mode=true&user_id=&sort=${sort}&label=&start=${start}&type=person&_=${+new Date()}`
   return fetch.get(url)
 }
 
-async function fetchAllContacts () {
+async function fetchAllContacts (recent) {
   if (window.rc.isFetchingContacts) {
     return
   }
   console.debug('running fetchAllContacts')
   window.rc.isFetchingContacts = true
   loadingContacts()
-  let start = await getCache(lastSyncOffset) || 0
+  const lastSync = recent
+    ? lastSyncOffsetRecent
+    : lastSyncOffset
+  let start = recent
+    ? 0
+    : await getCache(lastSync) || 0
   let hasMore = true
-  await remove().catch(e => {
-    console.log(e.stack)
-  })
+  if (!recent && !start) {
+    await remove().catch(e => {
+      console.log(e.stack)
+    })
+  }
   while (hasMore) {
     let res = await getContact(start).catch(console.debug)
+    console.log(res, 'res')
     if (!res || !res.data) {
       window.rc.isFetchingContacts = false
       return
     }
     let final = formatData(res)
     start = _.get(res, 'additional_data.pagination.start') + _.get(res, 'additional_data.pagination.limit')
-    hasMore = _.get(res, 'additional_data.pagination.more_items_in_collection')
+    hasMore = recent
+      ? false
+      : _.get(res, 'additional_data.pagination.more_items_in_collection')
     console.debug('fetching, start:', start, ', has more:', hasMore)
     await insert(final).catch(console.debug)
-    await setCache(lastSyncOffset, start, 'never')
+    await setCache(lastSync, start, 'never')
   }
-  await setCache(lastSyncOffset, 0, 'never')
+  await setCache(lastSync, 0, 'never')
   let now = Date.now()
   window.rc.syncTimestamp = now
   await ls.set('syncTimestamp', now)
@@ -256,12 +268,12 @@ function stopLoadingContacts () {
   }
 }
 
-export function reSyncData () {
+export function reSyncData (recent) {
   if (!window.rc.userAuthed) {
     showAuthBtn()
     return
   }
-  fetchAllContacts()
+  fetchAllContacts(recent)
 }
 
 function notifyReSyncContacts () {
