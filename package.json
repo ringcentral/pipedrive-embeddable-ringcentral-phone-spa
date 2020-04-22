@@ -68,7 +68,7 @@
     "react-dom": "^16.13.1",
     "recursive-assign": "0.2.0",
     "replace-in-file": "^5.0.2",
-    "ringcentral-embeddable-extension-common": "0.8.7",
+    "ringcentral-embeddable-extension-common": "0.8.8",
     "shelljs": "0.8.2",
     "standard": "^12.0.1",
     "style-loader": "0.23.1",
