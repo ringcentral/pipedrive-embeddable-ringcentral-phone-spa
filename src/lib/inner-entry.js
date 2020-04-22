@@ -6,17 +6,16 @@ import { render } from 'react-dom'
 import {
   createElementFromHTML
 } from 'ringcentral-embeddable-extension-common/src/common/helpers'
-import App from './react-ele'
-// import './box.styl'
+import App from './inner-elem'
 
 export default () => {
-  const id = 'rc-react-entry'
+  const id = 'rc-react-entry-inner'
   let rootElement = document.getElementById(id)
   if (rootElement) {
     return
   }
   rootElement = createElementFromHTML(`<div id="${id}"></div>`)
-  const home = document.body
+  const home = document.getElementById('Pipedrive-rc')
   home.appendChild(rootElement)
   render(
     <App />,
