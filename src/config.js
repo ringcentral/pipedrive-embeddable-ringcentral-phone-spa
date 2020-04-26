@@ -21,8 +21,7 @@ import {
   showAuthBtn,
   unAuth,
   doAuth,
-  notifyRCAuthed,
-  renderAuthButton
+  notifyRCAuthed
 } from './features/auth'
 import * as ls from 'ringcentral-embeddable-extension-common/src/common/ls'
 
@@ -41,6 +40,7 @@ import {
   match
 } from 'ringcentral-embeddable-extension-common/src/common/db'
 import initReact from './lib/react-entry'
+import initInner from './lib/inner-entry'
 
 let {
   pageSize = 100
@@ -359,13 +359,12 @@ export async function initThirdParty () {
   window.rc.userAuthed = userAuthed
   window.rc.syncTimestamp = await ls.get('syncTimestamp') || null
   window.rc.syncTimestampDeal = await ls.get('syncTimestampDeal') || null
-  // get the html ready
-  renderAuthButton()
   if (window.rc.userAuthed) {
     notifyRCAuthed()
   }
   upgrade()
   initReact()
+  initInner()
 }
 
 // init call with ringcenntral button at page bottom

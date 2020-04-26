@@ -11,6 +11,7 @@ export function getSessionToken () {
   return arr ? arr[1] : ''
 }
 
+export const autoLogPrefix = 'rc-auto-log-id:'
 /**
  * get current user info
  * @param {string} token

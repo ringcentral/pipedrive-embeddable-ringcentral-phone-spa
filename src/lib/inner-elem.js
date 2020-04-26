@@ -2,91 +2,109 @@
  * react element in widget wrapper
  */
 
-// import { useEffect, useState } from 'react'
-// import { Modal, Button } from 'antd'
-// import { SyncOutlined } from '@ant-design/icons'
-// import { reSyncData } from '../features/contacts'
+import { useEffect, useState } from 'react'
+import { Tooltip, Input } from 'antd'
+import { EditOutlined, LeftCircleOutlined } from '@ant-design/icons'
+import * as ls from 'ringcentral-embeddable-extension-common/src/common/ls'
+// prefix telephonySessionId
+import { autoLogPrefix } from '../features/common'
+import _ from 'lodash'
+import './inner.styl'
 
-// function showSyncMenu () {
-//   let mod = null
-//   function syncRecent () {
-//     reSyncData(true)
-//     destroyMod()
-//   }
-//   function syncAll () {
-//     reSyncData()
-//     destroyMod()
-//   }
-//   function destroyMod () {
-//     mod.destroy()
-//   }
-//   const content = (
-//     <div>
-//       <div className='pd2b'>After Sync contacts, conatacts data will update, so auto call log can match right contacts, you could choose sync only recent updated/created contacts or sync all contacts.</div>
-//       <div>
-//         <Button
-//           type='primary'
-//           className='mg1r mg1b'
-//           onClick={syncRecent}
-//         >
-//           Sync recent update/created contacts
-//         </Button>
-//         <Button
-//           type='primary'
-//           className='mg1r mg1b'
-//           onClick={syncAll}
-//         >
-//           Sync all contacts
-//         </Button>
-//         <Button
-//           type='ghost'
-//           className='mg1r mg1b'
-//           onClick={destroyMod}
-//         >
-//           Cancel
-//         </Button>
-//       </div>
-//     </div>
-//   )
-//   const btnProps = {
-//     disabled: true,
-//     className: 'hide'
-//   }
-//   mod = Modal.confirm({
-//     title: 'Sync contacts',
-//     width: '90%',
-//     icon: <SyncOutlined />,
-//     content,
-//     zIndex: 11000,
-//     closable: false,
-//     okButtonProps: btnProps,
-//     cancelButtonProps: btnProps
-//   })
-// }
+const { TextArea } = Input
 
-// // function showNotification (info, destroyPrev = false) {
-
-// // }
-
-// export default () => {
-//   // const [showForm, setShowForm] = useState(false)
-//   // function onEvent (e) {
-//   //   if (!e || !e.data || !e.data.type) {
-//   //     return
-//   //   }
-//   //   const { type } = e.data
-//   //   if (type === 'rc-call-init-notify') {
-//   //     setShowForm(true)
-//   //   } else if (type === 'rc-show-notification') {
-//   //     showNotification(e.data.info)
-//   //   }
-//   // }
-//   // useEffect(() => {
-//   //   window.addEventListener('message', onEvent)
-//   //   return () => {
-//   //     window.removeEventListener('message', onEvent)
-//   //   }
-//   // }, [])
-
-//   return null
-// }
+export default () => {
+  const [state, setStateOri] = useState({
+    calling: false,
+    note: '',
+    hideForm: false
+  })
+  const { note, hideForm, calling } = state
+  function setState (obj) {
+    setStateOri(s => ({
+      ...s,
+      ...obj
+    }))
+    console.log('state', state)
+  }
+  function saveNote (id) {
+    console.log('sid', id)
+    console.log('statebbb', note)
+    ls.set(id, note)
+  }
+  function onEvent (e) {
+    if (!e || !e.data || !e.data.type) {
+      return
+    }
+    const { type } = e.data
+    if (type === 'rc-call-start-notify') {
+      setState({
+        calling: true,
+        note: '',
+        hideForm: false
+      })
+    } else if (type === 'rc-call-end-notify') {
+      // setState({
+      //   hideForm: true
+      // })
+      const sid = _.get(e, 'data.call.partyData.sessionId')
+      if (!sid) {
+        return
+      }
+      const id = autoLogPrefix + sid
+      saveNote(id)
+    }
+  }
+  function handleChangeNote (e) {
+    setState({
+      note: e.target.value
+    })
+  }
+  useEffect(() => {
+    window.addEventListener('message', onEvent)
+    return () => {
+      window.removeEventListener('message', onEvent)
+    }
+  }, [note])
+  if (!calling) {
+    return null
+  }
+  if (hideForm) {
+    return (
+      <Tooltip title='Show note edit form' overlayClassName='rc-toolt-tip-card'>
+        <EditOutlined
+          onClick={() => setState({
+            hideForm: false
+          })}
+          className='pointer rc-show-note-form'
+        />
+      </Tooltip>
+    )
+  }
+  return (
+    <div className='rc-call-note-form'>
+      <div className='pd1'>
+        <Tooltip overlayClassName='rc-toolt-tip-card' title='Note will synced with call log when call end'>
+          <TextArea
+            value={note}
+            style={{
+              width: 'calc(100% - 24px)',
+              marginLeft: '24px'
+            }}
+            rows={1}
+            placeholder='Take some notes'
+            onChange={handleChangeNote}
+          />
+        </Tooltip>
+        <Tooltip title='Hide form' overlayClassName='rc-toolt-tip-card'>
+          <LeftCircleOutlined
+            onClick={() => setState({
+              hideForm: true
+            })}
+            className='pointer rc-hide-note-form'
+          />
+        </Tooltip>
+      </div>
+    </div>
+  )
+}

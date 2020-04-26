@@ -2,19 +2,12 @@
  * auth related feature
  */
 
-import { thirdPartyConfigs } from 'ringcentral-embeddable-extension-common/src/common/app-config'
-import logo from 'ringcentral-embeddable-extension-common/src/common/rc-logo'
 import {
-  createElementFromHTML,
-  findParentBySel,
   sendMsgToRCIframe
 } from 'ringcentral-embeddable-extension-common/src/common/helpers'
 import * as ls from 'ringcentral-embeddable-extension-common/src/common/ls'
 
 let tokenHandler
-let {
-  serviceName
-} = thirdPartyConfigs
 
 window.rc = {
   postMessage: sendMsgToRCIframe
@@ -45,22 +38,9 @@ export function hideAuthBtn () {
  * need show auth button to user
  */
 export function showAuthBtn () {
-  let dom = document.querySelector('.rc-auth-button-wrap')
-  dom && dom.classList.remove('rc-hide-to-side')
-}
-
-/**
- * hanle user click auth button
- * @param {*} e
- */
-function handleAuthClick (e) {
-  let { target } = e
-  let { classList } = target
-  if (findParentBySel(target, '.rc-auth-btn')) {
-    doAuth()
-  } else if (classList.contains('rc-dismiss-auth')) {
-    hideAuthBtn()
-  }
+  window.postMessage({
+    type: 'rc-show-auth-panel'
+  }, '*')
 }
 
 /**
@@ -80,9 +60,6 @@ export async function doAuth () {
   if (window.rc.userAuthed) {
     return
   }
-  hideAuthBtn()
-  let frameWrap = document.getElementById('rc-auth-hs')
-  frameWrap && frameWrap.classList.remove('rc-hide-to-side')
   updateUserAuthed(true)
   notifyRCAuthed()
 }
@@ -109,41 +86,4 @@ export async function unAuth () {
   if (refreshContactsBtn) {
     refreshContactsBtn.remove()
   }
-}
-
-/**
- * render auth button
- * todo: you can customize this
- */
-export function renderAuthButton () {
-  let btn = createElementFromHTML(
-    `
-      <div class="rc-auth-button-wrap animate rc-hide-to-side">
-        <span class="rc-auth-btn">
-          <span class="rc-iblock">Auth</span>
-          <img class="rc-iblock" src="${logo}" />
-          <span class="rc-iblock">access ${serviceName} data</span>
-        </span>
-        <div class="rc-auth-desc rc-pd1t">
-          After auth, you can access ${serviceName} contacts from RingCentral phone's contacts list. You can revoke access from RingCentral phone's setting.
-        </div>
-        <div class="rc-pd1t">
-          <span class="rc-dismiss-auth" title="dismiss">&times;</span>
-        </div>
-      </div>
-    `
-  )
-  btn.onclick = handleAuthClick
-  if (
-    !document.querySelector('.rc-auth-button-wrap')
-  ) {
-    document.body.appendChild(btn)
-  }
-}
-
-/**
- * todo: you can customize this
- */
-export function renderAuthPanel () {
-  return false
 }

@@ -15,7 +15,7 @@ import {
 } from 'ringcentral-embeddable-extension-common/src/common/helpers'
 import fetch from 'ringcentral-embeddable-extension-common/src/common/fetch'
 import moment from 'moment'
-import { getSessionToken } from './common'
+import { getSessionToken, autoLogPrefix } from './common'
 import {
   match
 } from 'ringcentral-embeddable-extension-common/src/common/db'
@@ -185,6 +185,13 @@ async function filterLoggered (arr) {
  */
 async function doSyncOne (contact, body, formData, isManuallySync) {
   let { id, org_id: oid } = contact
+  let desc = formData.description
+  const sid = _.get(body, 'call.telephonySessionId') || 'not-exist'
+  const sessid = autoLogPrefix + sid
+  if (!isManuallySync) {
+    desc = await ls.get(sessid) || ''
+    console.log('ff', sessid, desc)
+  }
   let toNumber = _.get(body, 'call.to.phoneNumber')
   let fromNumber = _.get(body, 'call.from.phoneNumber')
   let duration = _.get(body, 'call.duration') || 0
@@ -230,7 +237,7 @@ async function doSyncOne (contact, body, formData, isManuallySync) {
   let bodyAll = mainBody.map(mm => {
     return {
       id: mm.id,
-      body: `<p>${formData.description || ''}</p><p>${mm.body}</p>${recording}`
+      body: `<p>${desc || ''}</p><p>${mm.body}</p>${recording}`
     }
   })
   for (const uit of bodyAll) {
@@ -266,5 +273,8 @@ async function doSyncOne (contact, body, formData, isManuallySync) {
     } else {
       notify('call log sync to third party failed', 'warn')
     }
+  }
+  if (!isManuallySync) {
+    await ls.clear(sessid)
   }
 }
