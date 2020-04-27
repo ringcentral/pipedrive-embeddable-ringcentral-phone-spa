@@ -83,7 +83,7 @@ function showAuthPanel () {
   }
   const content = (
     <div>
-      <div className='rc-pd2b'>After authorization, HubSpot contacts data will be synced to RingCentral extension, so all contacts related function including auto call log will match right contacts. (contacts data only stores in your browser).</div>
+      <div className='rc-pd2b'>After authorization, PipeDrive contacts data will be synced to RingCentral extension, so all contacts related function including auto call log will match right contacts. (contacts data only stores in your browser).</div>
       <div>
         <Button
           type='primary'
