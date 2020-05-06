@@ -22,13 +22,45 @@ import {
 import { getUserId } from './activities'
 import { notifySyncSuccess, getDealId } from './call-log-sync-to-deal'
 import * as ls from 'ringcentral-embeddable-extension-common/src/common/ls'
+import copy from 'json-deep-copy'
 
 let {
   showCallLogSyncForm,
   serviceName
 } = thirdPartyConfigs
 
+let prev = {
+  time: Date.now(),
+  sessionId: '',
+  body: {}
+}
+
 const userId = getUserId()
+
+function checkMerge (body) {
+  const maxDiff = 100
+  const now = Date.now()
+  const sid = _.get(body, 'conversation.conversationId')
+  const type = _.get(body, 'conversation.type')
+  if (type !== 'SMS') {
+    return body
+  }
+  if (prev.sessionId === sid && prev.time - now < maxDiff) {
+    let msgs = [
+      ...body.conversation.messages,
+      ...prev.body.conversation.messages
+    ]
+    msgs = _.uniqBy(msgs, (e) => e.id)
+    body.conversation.messages = msgs
+    prev.body = copy(body)
+    return body
+  } else {
+    prev.time = now
+    prev.sessionId = sid
+    prev.body = copy(body)
+    return body
+  }
+}
 
 /**
  * sync call log from ringcentral widgets to third party CRM site
@@ -51,12 +83,15 @@ export async function syncCallLogToThirdParty (body) {
     return isManuallySync ? showAuthBtn() : null
   }
   if (showCallLogSyncForm && isManuallySync) {
+    body = checkMerge(body)
     let contactRelated = await getContactInfo(body, serviceName)
     if (
       !contactRelated ||
       (!contactRelated.froms && !contactRelated.tos)
     ) {
-      return notify('No related contact')
+      const b = copy(body)
+      b.type = 'rc-show-add-contact-panel'
+      return window.postMessage(b, '*')
     }
     return createForm(
       body,
@@ -190,7 +225,6 @@ async function doSyncOne (contact, body, formData, isManuallySync) {
   const sessid = autoLogPrefix + sid
   if (!isManuallySync) {
     desc = await ls.get(sessid) || ''
-    console.log('ff', sessid, desc)
   }
   let toNumber = _.get(body, 'call.to.phoneNumber')
   let fromNumber = _.get(body, 'call.from.phoneNumber')

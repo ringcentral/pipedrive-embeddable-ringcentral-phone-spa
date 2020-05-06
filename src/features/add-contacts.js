@@ -33,30 +33,30 @@ import {
 import { getSessionToken } from './common'
 import fetch from 'ringcentral-embeddable-extension-common/src/common/fetch'
 
-async function addOne (i) {
+export async function addContact ({
+  name, email, phone
+}) {
   let token = getSessionToken()
   let url = `${host}/api/v1/persons?session_token=${token}&strict_mode=true`
   let da = {
-    name: 'test' + i,
+    name,
     email: [
       {
         label: 'work',
-        value: `test${i}@tt.tt`,
+        value: email,
         primary: true
       }
     ],
     phone: [
       {
         label: 'work',
-        value: `+${16504370000 + i}`,
+        value: phone,
         primary: true
       }
     ],
     visible_to: 3
   }
-  console.log(i)
-  let res = await fetch.post(url, da)
-  console.log(res)
+  return fetch.post(url, da)
 }
 
 // function wait (ms) {
@@ -65,11 +65,18 @@ async function addOne (i) {
 //   })
 // }
 
-async function addAll (all) {
+export async function addAll (all) {
   for (let i = 0; i < all; i++) {
-    await addOne(i)
+    console.log(i)
+    const contact = {
+      name: 'test' + i,
+      email: `test${i}@tt.tt`,
+      phone: `+${16504370000 + i}`
+    }
+    const res = await addContact(contact)
+    console.log(res)
     // wait(500)
   }
 }
 
-addAll(400)
+// addAll(400)

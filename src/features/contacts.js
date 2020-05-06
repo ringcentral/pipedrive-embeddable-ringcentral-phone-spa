@@ -45,7 +45,7 @@ const lastSyncOffset = 'last-sync-offset'
     emails: ['test@email.com']
   }]
  */
-function formatData (data) {
+export function formatData (data) {
   return data.data.map(d => {
     let { id, name, owner_id: ownerId, label = '', phone, email, org_id: orgId } = d
     let res = {
@@ -108,17 +108,20 @@ export const getContact = async function (start = 0) {
   return fetch.get(url)
 }
 
-async function fetchAllContacts (recent) {
+async function fetchAllContacts (_recent) {
+  if (!window.rc.userAuthed) {
+    showAuthBtn()
+    return
+  }
   if (window.rc.isFetchingContacts) {
     return
   }
   console.debug('running fetchAllContacts')
   window.rc.isFetchingContacts = true
   loadingContacts()
+  let recent = !!_recent
   const lastSync = lastSyncOffset
-  let start = recent
-    ? 0
-    : await getCache(lastSync) || 0
+  let start = await getCache(lastSync) || 0
   let hasMore = true
   if (!recent && !start) {
     await remove().catch(e => {
@@ -139,9 +142,13 @@ async function fetchAllContacts (recent) {
       : _.get(res, 'additional_data.pagination.more_items_in_collection')
     console.debug('fetching, start:', start, ', has more:', hasMore)
     await insert(final).catch(console.debug)
-    await setCache(lastSync, start, 'never')
+    if (!recent) {
+      await setCache(lastSync, start, 'never')
+    }
   }
-  await setCache(lastSync, 0, 'never')
+  if (!recent) {
+    await setCache(lastSync, 0, 'never')
+  }
   let now = Date.now()
   window.rc.syncTimestamp = now
   await ls.set('syncTimestamp', now)
@@ -273,7 +280,7 @@ export function reSyncData (recent) {
   fetchAllContacts(recent)
 }
 
-function notifyReSyncContacts () {
+export function notifyReSyncContacts () {
   window.rc.postMessage({
     type: 'rc-adapter-sync-third-party-contacts'
   })

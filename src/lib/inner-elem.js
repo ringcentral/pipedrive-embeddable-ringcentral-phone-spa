@@ -3,13 +3,25 @@
  */
 
 import { useEffect, useState } from 'react'
-import { Tooltip, Input } from 'antd'
+import { Tooltip, Input, notification } from 'antd'
 import { EditOutlined, LeftCircleOutlined } from '@ant-design/icons'
 import * as ls from 'ringcentral-embeddable-extension-common/src/common/ls'
 // prefix telephonySessionId
+import ContactForm from './add-contact-form'
 import { autoLogPrefix } from '../features/common'
+import { addContact } from '../features/add-contacts'
+import { showAuthBtn } from '../features/auth'
+import { formatData, notifyReSyncContacts } from '../features/contacts'
 import _ from 'lodash'
+import {
+  insert, match
+} from 'ringcentral-embeddable-extension-common/src/common/db'
 import './inner.styl'
+
+notification.config({
+  placement: 'bottomLeft',
+  duration: 5
+})
 
 const { TextArea } = Input
 
@@ -17,22 +29,49 @@ export default () => {
   const [state, setStateOri] = useState({
     calling: false,
     note: '',
-    hideForm: false
+    hideForm: false,
+    showAddContactForm: false,
+    submitting: false
   })
-  const { note, hideForm, calling } = state
+  const [data, setData] = useState({})
+  const { note, hideForm, calling, showAddContactForm, submitting } = state
   function setState (obj) {
     setStateOri(s => ({
       ...s,
       ...obj
     }))
-    console.log('state', state)
   }
   function saveNote (id) {
-    console.log('sid', id)
-    console.log('statebbb', note)
     ls.set(id, note)
   }
-  function onEvent (e) {
+  async function onFinish (data) {
+    setState({
+      submitting: true
+    })
+    const r = await addContact(data)
+    if (!r || !r.data || !r.data.id) {
+      notification.error({
+        message: 'Create contact failed'
+      })
+    } else {
+      if (r && r.data && r.data.id) {
+        await insert(
+          formatData({
+            data: [r.data]
+          })
+        )
+        notifyReSyncContacts()
+      }
+      notification.info({
+        message: 'Contact created'
+      })
+    }
+    setState({
+      submitting: false,
+      showAddContactForm: false
+    })
+  }
+  async function onEvent (e) {
     if (!e || !e.data || !e.data.type) {
       return
     }
@@ -53,6 +92,34 @@ export default () => {
       }
       const id = autoLogPrefix + sid
       saveNote(id)
+    } else if (type === 'rc-show-add-contact-panel') {
+      if (!window.rc.userAuthed) {
+        showAuthBtn()
+        return
+      }
+      const { call = {} } = e.data
+      let phone = _.get(
+        e.data,
+        'conversation.correspondents[0].phoneNumber'
+      )
+      if (!phone) {
+        phone = call.direction === 'Inbound'
+          ? _.get(call, 'from.phoneNumber') || _.get(call, 'from')
+          : _.get(call, 'to.phoneNumber') || _.get(call, 'to')
+      }
+      const name = call.direction === 'Inbound'
+        ? _.get(call, 'from.name')
+        : _.get(call, 'to.name')
+      let res = await match([phone])
+      if (_.isEmpty(res)) {
+        setData({
+          phone,
+          name
+        })
+        setState({
+          showAddContactForm: true
+        })
+      }
     }
   }
   function handleChangeNote (e) {
@@ -66,6 +133,18 @@ export default () => {
       window.removeEventListener('message', onEvent)
     }
   }, [note])
+  if (showAddContactForm) {
+    return (
+      <ContactForm
+        onFinish={onFinish}
+        formData={data}
+        loading={submitting}
+        handleCancel={() => setState({
+          showAddContactForm: false
+        })}
+      />
+    )
+  }
   if (!calling) {
     return null
   }

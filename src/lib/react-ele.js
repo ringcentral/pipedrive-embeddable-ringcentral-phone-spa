@@ -8,8 +8,8 @@ import { SyncOutlined, InfoCircleOutlined } from '@ant-design/icons'
 import { reSyncData } from '../features/contacts'
 import './antd.less'
 import 'antd/dist/antd.less'
-
 import { doAuth } from '../features/auth'
+import AutoSync from './auto-resync'
 
 function showSyncMenu () {
   let mod = null
@@ -49,6 +49,7 @@ function showSyncMenu () {
         >
           Cancel
         </Button>
+        <AutoSync />
       </div>
     </div>
   )
@@ -132,9 +133,6 @@ export default () => {
   }
   useEffect(() => {
     window.addEventListener('message', onEvent)
-    if (!window.rc.userAuthed) {
-      showAuthPanel()
-    }
     return () => {
       window.removeEventListener('message', onEvent)
     }

@@ -35,7 +35,6 @@ export async function getContactInfo (body, serviceName) {
   let froms = []
   let tos = []
   let time
-  let noContact = () => notify(`No related contact in ${serviceName}`)
   let fromText = 'from'
   let toText = 'to'
   if (body.call) {
@@ -43,7 +42,6 @@ export async function getContactInfo (body, serviceName) {
     froms = _.get(body, 'call.fromMatches') || []
     tos = _.get(body, 'call.toMatches') || []
     if (!froms.length && !tos.length) {
-      noContact()
       return
     }
     time = moment(body.call.startTime).format()
@@ -62,7 +60,6 @@ export async function getContactInfo (body, serviceName) {
     froms = froms[selfNumber] || []
     time = _.get(body, 'conversation.date')
     if (!tos.length && !froms.length) {
-      noContact()
       return
     }
   } else {

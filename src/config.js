@@ -41,6 +41,8 @@ import {
 } from 'ringcentral-embeddable-extension-common/src/common/db'
 import initReact from './lib/react-entry'
 import initInner from './lib/inner-entry'
+import { resyncCheck } from './lib/auto-resync'
+import copy from 'json-deep-copy'
 
 let {
   pageSize = 100
@@ -210,6 +212,10 @@ export function thirdPartyServiceConfig (serviceName) {
       !window.rc.userAuthed
     ) {
       showAuthBtn()
+    } else if (type === 'rc-call-end-notify') {
+      const dd = copy(data)
+      dd.type = 'rc-show-add-contact-panel'
+      window.postMessage(dd, '*')
     } else if (
       type === 'rc-active-call-notify'
     ) {
@@ -248,16 +254,6 @@ export function thirdPartyServiceConfig (serviceName) {
         window.postMessage({
           type: 'rc-show-sync-menu'
         }, '*')
-        rc.postMessage({
-          type: 'rc-post-message-response',
-          responseId: data.requestId,
-          response: {
-            data: [],
-            nextPage: null,
-            syncTimestamp: window.rc.syncTimestamp
-          }
-        })
-        return
       }
       let page = _.get(data, 'body.page') || 1
       let contacts = await getContacts(page)
@@ -278,7 +274,7 @@ export function thirdPartyServiceConfig (serviceName) {
         }
       })
     } else if (path === '/contacts/search') {
-      if (!rc.userAuthed) {
+      if (!window.rc.userAuthed) {
         return showAuthBtn()
       }
       let contacts = []
@@ -294,7 +290,7 @@ export function thirdPartyServiceConfig (serviceName) {
         }
       })
     } else if (path === '/contacts/match') {
-      if (!rc.userAuthed) {
+      if (!window.rc.userAuthed) {
         return showAuthBtn()
       }
       let phoneNumbers = _.get(data, 'body.phoneNumbers') || []
@@ -365,6 +361,7 @@ export async function initThirdParty () {
   upgrade()
   initReact()
   initInner()
+  resyncCheck()
 }
 
 // init call with ringcenntral button at page bottom
