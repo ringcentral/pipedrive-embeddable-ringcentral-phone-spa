@@ -250,20 +250,31 @@ export function thirdPartyServiceConfig (serviceName) {
       })
     } else if (path === '/contacts') {
       let isMannulSync = _.get(data, 'body.type') === 'manual'
-      if (isMannulSync) {
+      let page = _.get(data, 'body.page') || 1
+      if (isMannulSync && page === 1) {
         window.postMessage({
           type: 'rc-show-sync-menu'
         }, '*')
+        return rc.postMessage({
+          type: 'rc-post-message-response',
+          responseId: data.requestId,
+          response: {
+            data: []
+          }
+        })
       }
-      let page = _.get(data, 'body.page') || 1
+      window.postMessage({
+        type: 'rc-transferring-data',
+        transferringData: true
+      }, '*')
       let contacts = await getContacts(page)
+      window.postMessage({
+        type: 'rc-transferring-data',
+        transferringData: false
+      }, '*')
       let nextPage = ((contacts.count || 0) - page * pageSize > 0) || contacts.hasMore
         ? page + 1
         : null
-      let syncTimestamp = _.get(data, 'body.syncTimestamp')
-      if (syncTimestamp && syncTimestamp === window.rc.syncTimestamp) {
-        nextPage = null
-      }
       rc.postMessage({
         type: 'rc-post-message-response',
         responseId: data.requestId,
@@ -354,7 +365,6 @@ export async function initThirdParty () {
   let userAuthed = await ls.get('userAuthed') || false
   window.rc.userAuthed = userAuthed
   window.rc.syncTimestamp = await ls.get('syncTimestamp') || null
-  window.rc.syncTimestampDeal = await ls.get('syncTimestampDeal') || null
   if (window.rc.userAuthed) {
     notifyRCAuthed()
   }

@@ -23,7 +23,7 @@ let config = {
   thirdPartyConfigs: {
     showCallLogSyncForm: true,
     serviceName: 'serviceName',
-    pageSize: 10000,
+    pageSize: 200000,
     dbSchema: {
       org_id: {
         dataType: 'string'

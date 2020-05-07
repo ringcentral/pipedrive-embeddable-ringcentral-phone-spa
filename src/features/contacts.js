@@ -130,20 +130,17 @@ async function fetchAllContacts (_recent) {
   }
   while (hasMore) {
     let res = await getContact(start).catch(console.debug)
-    console.log(res, 'res')
-    if (!res || !res.data) {
-      window.rc.isFetchingContacts = false
-      return
-    }
-    let final = formatData(res)
-    start = _.get(res, 'additional_data.pagination.start') + _.get(res, 'additional_data.pagination.limit')
-    hasMore = recent
-      ? false
-      : _.get(res, 'additional_data.pagination.more_items_in_collection')
-    console.debug('fetching, start:', start, ', has more:', hasMore)
-    await insert(final).catch(console.debug)
-    if (!recent) {
-      await setCache(lastSync, start, 'never')
+    if (res && res.data) {
+      let final = formatData(res)
+      start = _.get(res, 'additional_data.pagination.start') + _.get(res, 'additional_data.pagination.limit')
+      hasMore = recent
+        ? false
+        : _.get(res, 'additional_data.pagination.more_items_in_collection')
+      console.debug('fetching, start:', start, ', has more:', hasMore)
+      await insert(final).catch(console.debug)
+      if (!recent) {
+        await setCache(lastSync, start, 'never')
+      }
     }
   }
   if (!recent) {

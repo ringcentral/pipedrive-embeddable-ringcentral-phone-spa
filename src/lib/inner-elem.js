@@ -4,7 +4,7 @@
 
 import { useEffect, useState } from 'react'
 import { Tooltip, Input, notification } from 'antd'
-import { EditOutlined, LeftCircleOutlined } from '@ant-design/icons'
+import { EditOutlined, LeftCircleOutlined, SyncOutlined } from '@ant-design/icons'
 import * as ls from 'ringcentral-embeddable-extension-common/src/common/ls'
 // prefix telephonySessionId
 import ContactForm from './add-contact-form'
@@ -27,14 +27,16 @@ const { TextArea } = Input
 
 export default () => {
   const [state, setStateOri] = useState({
+    path: '',
     calling: false,
     note: '',
     hideForm: false,
     showAddContactForm: false,
-    submitting: false
+    submitting: false,
+    transferringData: false
   })
   const [data, setData] = useState({})
-  const { note, hideForm, calling, showAddContactForm, submitting } = state
+  const { note, hideForm, calling, showAddContactForm, submitting, path, transferringData } = state
   function setState (obj) {
     setStateOri(s => ({
       ...s,
@@ -75,8 +77,16 @@ export default () => {
     if (!e || !e.data || !e.data.type) {
       return
     }
-    const { type } = e.data
-    if (type === 'rc-call-start-notify') {
+    const { type, path, transferringData } = e.data
+    if (type === 'rc-transferring-data') {
+      setState({
+        transferringData
+      })
+    } else if (type === 'rc-route-changed-notify') {
+      setState({
+        path
+      })
+    } else if (type === 'rc-call-start-notify') {
       setState({
         calling: true,
         note: '',
@@ -133,6 +143,17 @@ export default () => {
       window.removeEventListener('message', onEvent)
     }
   }, [note])
+  const isCallPath = path.startsWith('/calls/') || path.startsWith('/dialer')
+  if (path === '/contacts' && transferringData) {
+    return (
+      <Tooltip title='Rebuilding data...' overlayClassName='rc-toolt-tip-card'>
+        <SyncOutlined
+          spin
+          className='rc-show-note-form'
+        />
+      </Tooltip>
+    )
+  }
   if (showAddContactForm) {
     return (
       <ContactForm
@@ -148,7 +169,7 @@ export default () => {
   if (!calling) {
     return null
   }
-  if (hideForm) {
+  if (hideForm && isCallPath) {
     return (
       <Tooltip title='Show note edit form' overlayClassName='rc-toolt-tip-card'>
         <EditOutlined
@@ -159,31 +180,32 @@ export default () => {
         />
       </Tooltip>
     )
-  }
-  return (
-    <div className='rc-call-note-form'>
-      <div className='pd1'>
-        <Tooltip overlayClassName='rc-toolt-tip-card' title='Note will synced with call log when call end'>
-          <TextArea
-            value={note}
-            style={{
-              width: 'calc(100% - 24px)',
-              marginLeft: '24px'
-            }}
-            rows={1}
-            placeholder='Take some notes'
-            onChange={handleChangeNote}
-          />
-        </Tooltip>
-        <Tooltip title='Hide form' overlayClassName='rc-toolt-tip-card'>
-          <LeftCircleOutlined
-            onClick={() => setState({
-              hideForm: true
-            })}
-            className='pointer rc-hide-note-form'
-          />
-        </Tooltip>
+  } else if (isCallPath) {
+    return (
+      <div className='rc-call-note-form'>
+        <div className='pd1'>
+          <Tooltip overlayClassName='rc-toolt-tip-card' title='Note will synced with call log when call end'>
+            <TextArea
+              value={note}
+              style={{
+                width: 'calc(100% - 24px)',
+                marginLeft: '24px'
+              }}
+              rows={1}
+              placeholder='Take some notes'
+              onChange={handleChangeNote}
+            />
+          </Tooltip>
+          <Tooltip title='Hide form' overlayClassName='rc-toolt-tip-card'>
+            <LeftCircleOutlined
+              onClick={() => setState({
+                hideForm: true
+              })}
+              className='pointer rc-hide-note-form'
+            />
+          </Tooltip>
+        </div>
       </div>
-    </div>
-  )
+    )
+  }
 }
