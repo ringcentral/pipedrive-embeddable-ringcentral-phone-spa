@@ -15,7 +15,7 @@ window.rc = {
 
 export async function updateUserAuthed (authed) {
   if (!authed) {
-    await ls.clear()
+    await ls.remove('userAuthed')
     window.rc.userAuthed = false
   } else {
     window.rc.userAuthed = true

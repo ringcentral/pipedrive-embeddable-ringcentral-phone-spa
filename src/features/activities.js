@@ -22,6 +22,7 @@ export function getUserId () {
   if (!id) {
     id = arr1 ? arr1[1] : ''
   }
+  return id
   //* /
 }
 

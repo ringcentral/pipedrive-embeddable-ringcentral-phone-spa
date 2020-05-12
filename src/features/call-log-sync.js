@@ -309,6 +309,6 @@ async function doSyncOne (contact, body, formData, isManuallySync) {
     }
   }
   if (!isManuallySync) {
-    await ls.clear(sessid)
+    await ls.remove(sessid)
   }
 }
