@@ -13,6 +13,7 @@ import { addContact } from '../features/add-contacts'
 import { showAuthBtn } from '../features/auth'
 import { formatData, notifyReSyncContacts } from '../features/contacts'
 import _ from 'lodash'
+import Sms from './sms'
 import {
   insert, match
 } from 'ringcentral-embeddable-extension-common/src/common/db'
@@ -144,6 +145,9 @@ export default () => {
     }
   }, [note])
   const isCallPath = path.startsWith('/calls/') || path.startsWith('/dialer')
+  if (path.startsWith('/conversations/')) {
+    return <Sms />
+  }
   if (path === '/contacts' && transferringData) {
     return (
       <Tooltip title='Rebuilding data...' overlayClassName='rc-toolt-tip-card'>
