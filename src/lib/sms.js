@@ -94,7 +94,6 @@ export default () => {
   return (
     <div className='rc-call-note-form rc-sms-wrap'>
       <Select
-        searchValue
         onSelect={onSelect}
         suffixIcon={editIcon}
         showSearch

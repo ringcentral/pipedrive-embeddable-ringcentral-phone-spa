@@ -39,9 +39,12 @@ export default function AutoResync () {
       return update
     })
   }
-  useEffect(async () => {
+  async function update () {
     const update = await ls.get(key) || copy(initState)
     setState(update)
+  }
+  useEffect(() => {
+    update()
   }, [])
   return (
     <div className='rc-pd1y rc-pd2t'>
@@ -53,7 +56,7 @@ export default function AutoResync () {
       >
         Auto resync recent updated/created contacts
       </Checkbox>
-      <p>
+      <div>
         <span className='rc-mg1r'>Interval:</span>
         <InputNumber
           min={5}
@@ -65,7 +68,7 @@ export default function AutoResync () {
           })}
         />
         <span className='rc-mg1l'>minutes</span>
-      </p>
+      </div>
       <p>* Auto resync will pause when page inactive or hidden</p>
     </div>
   )

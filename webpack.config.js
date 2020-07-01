@@ -29,11 +29,11 @@ const to1 = path.resolve(
 // )
 const f31 = path.resolve(
   __dirname,
-  'node_modules/react/umd/react.development.js'
+  'node_modules/react/umd/react.production.min.js'
 )
 const f32 = path.resolve(
   __dirname,
-  'node_modules/react-dom/umd/react-dom.development.js'
+  'node_modules/react-dom/umd/react-dom.production.min.js'
 )
 const f3 = path.resolve(
   __dirname,

@@ -145,7 +145,10 @@ export default () => {
     }
   }, [note])
   const isCallPath = path.startsWith('/calls/') || path.startsWith('/dialer')
-  if (path.startsWith('/conversations/')) {
+  const isSMSpath = path.startsWith('/conversations/') ||
+    path.startsWith('conversations/') ||
+    path.startsWith('/composeText')
+  if (isSMSpath) {
     return <Sms />
   }
   if (path === '/contacts' && transferringData) {
