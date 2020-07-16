@@ -12,7 +12,7 @@ import './sms.styl'
 const { Option } = Select
 const key = 'rc-smses'
 
-export default () => {
+export default (props) => {
   const [smses, setSMSes] = useState([])
   const [sms, setSMS] = useState('')
   const [showModal, setShowModal] = useState(false)
@@ -25,10 +25,18 @@ export default () => {
     return () => null
   }, [])
   function onSelect (v, opt) {
-    window.rc.postMessage({
-      type: 'rc-adapter-auto-populate-conversation',
-      text: opt.children
-    })
+    if (props.path.startsWith('/composeText')) {
+      window.rc.postMessage({
+        type: 'rc-adapter-new-sms',
+        phoneNumber: '',
+        text: opt.children
+      })
+    } else {
+      window.rc.postMessage({
+        type: 'rc-adapter-auto-populate-conversation',
+        text: opt.children
+      })
+    }
   }
   function openModal () {
     setShowModal(true)

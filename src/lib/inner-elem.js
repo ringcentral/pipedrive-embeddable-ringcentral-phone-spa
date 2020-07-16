@@ -149,7 +149,7 @@ export default () => {
     path.startsWith('conversations/') ||
     path.startsWith('/composeText')
   if (isSMSpath) {
-    return <Sms />
+    return <Sms path={path} />
   }
   if (path === '/contacts' && transferringData) {
     return (
