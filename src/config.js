@@ -69,7 +69,7 @@ export const insertClickToCallButton = [
         }
         let title = n ? n.textContent.trim() : 'Direct' + i
         let id = title
-        let number = p.textContent.trim()
+        let number = p.textContent.trim().replace('*', '#').replace(' ext. ', '#')
         if (checkPhoneNumber(number)) {
           return {
             id,
@@ -122,7 +122,7 @@ export const hoverShowClickToCallButton = [
           title0 = title0.trim()
           title = title0.replace(/\(|\)/g, '')
           title = title.trim()
-          number = number.replace(title0, '')
+          number = number.replace(title0, '').replace('*', '#').replace(' ext. ', '#')
           return {
             id: 'p_' + i,
             title,

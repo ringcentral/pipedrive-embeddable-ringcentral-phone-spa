@@ -23,7 +23,7 @@ import {
 } from 'ringcentral-embeddable-extension-common/src/common/db'
 import * as ls from 'ringcentral-embeddable-extension-common/src/common/ls'
 // import { getAllDeals } from './deals'
-import { getSessionToken } from './common'
+import { getSessionToken, getFullNumber } from './common'
 // import './add-contacts'
 
 const {
@@ -201,7 +201,7 @@ export async function showContactInfoPanel (call) {
     return
   }
   popup()
-  let phone = _.get(call, 'from.phoneNumber') || _.get(call, 'from')
+  let phone = getFullNumber(_.get(call, 'from')) || _.get(call, 'from')
   if (!phone) {
     return
   }

@@ -8,7 +8,7 @@ import { EditOutlined, LeftCircleOutlined, SyncOutlined } from '@ant-design/icon
 import * as ls from 'ringcentral-embeddable-extension-common/src/common/ls'
 // prefix telephonySessionId
 import ContactForm from './add-contact-form'
-import { autoLogPrefix } from '../features/common'
+import { autoLogPrefix, getFullNumber } from '../features/common'
 import { addContact } from '../features/add-contacts'
 import { showAuthBtn } from '../features/auth'
 import { formatData, notifyReSyncContacts } from '../features/contacts'
@@ -109,14 +109,14 @@ export default () => {
         return
       }
       const { call = {} } = e.data
-      let phone = _.get(
+      let phone = getFullNumber(_.get(
         e.data,
-        'conversation.correspondents[0].phoneNumber'
-      )
+        'conversation.correspondents[0]'
+      ))
       if (!phone) {
         phone = call.direction === 'Inbound'
-          ? _.get(call, 'from.phoneNumber') || _.get(call, 'from')
-          : _.get(call, 'to.phoneNumber') || _.get(call, 'to')
+          ? getFullNumber(_.get(call, 'from'))
+          : getFullNumber(_.get(call, 'to'))
       }
       const name = call.direction === 'Inbound'
         ? _.get(call, 'from.name')

@@ -13,9 +13,10 @@ import moment from 'moment'
 import {
   match
 } from 'ringcentral-embeddable-extension-common/src/common/db'
+import { getFullNumber } from './common'
 
 export function formatPhoneLocal (number) {
-  return formatPhone(number, undefined, 'formatNational')
+  return formatPhone(number, undefined)
 }
 
 function onCancel () {
@@ -54,7 +55,7 @@ export async function getContactInfo (body, serviceName) {
     toText = 'Correspondents'
     tos = _.get(body, 'correspondentEntity')
     tos = tos ? [tos] : []
-    let selfNumber = formatPhone(_.get(body, 'conversation.self.phoneNumber'))
+    let selfNumber = getFullNumber(_.get(body, 'conversation.self'))
     froms = await match([selfNumber])
 
     froms = froms[selfNumber] || []
@@ -74,8 +75,7 @@ export async function getContactInfo (body, serviceName) {
     froms = ''
   } else {
     froms = froms.join(', ')
-    let f = formatPhoneLocal(_.get(body, 'call.from.phoneNumber') ||
-      _.get(body, 'conversation.self.phoneNumber') || '')
+    let f = formatPhoneLocal(getFullNumber(_.get(body, 'call.from')) || getFullNumber(_.get(body, 'conversation.self')))
     froms = `<li>
       <b>${fromText}:</b> ${f}${froms ? '(' + froms + ')' : ''}
     </li>`
@@ -87,7 +87,7 @@ export async function getContactInfo (body, serviceName) {
     tos = ''
   } else {
     tos = tos.join(', ')
-    let t = formatPhoneLocal(_.get(body, 'call.to.phoneNumber') || '')
+    let t = formatPhoneLocal(getFullNumber(_.get(body, 'call.to')))
     tos = `<li>
       <b>${toText}:</b> ${t}${tos ? '(' + tos + ')' : '-'}</b>
     </li>

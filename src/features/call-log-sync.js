@@ -15,7 +15,7 @@ import {
 } from 'ringcentral-embeddable-extension-common/src/common/helpers'
 import fetch from 'ringcentral-embeddable-extension-common/src/common/fetch'
 import moment from 'moment'
-import { getSessionToken, autoLogPrefix } from './common'
+import { getSessionToken, autoLogPrefix, getFullNumber } from './common'
 import {
   match
 } from 'ringcentral-embeddable-extension-common/src/common/db'
@@ -110,18 +110,18 @@ export async function syncCallLogToThirdParty (body) {
 async function getSyncContacts (body) {
   let all = []
   if (body.call) {
-    let nf = _.get(body, 'to.phoneNumber') ||
-      _.get(body, 'call.to.phoneNumber')
-    let nt = _.get(body, 'from.phoneNumber') ||
-      _.get(body.call, 'from.phoneNumber')
+    let nf = getFullNumber(_.get(body, 'to')) ||
+      getFullNumber(_.get(body, 'call.to'))
+    let nt = getFullNumber(_.get(body, 'from')) ||
+      getFullNumber(_.get(body.call, 'from'))
     all = [nt, nf]
   } else {
     all = [
-      _.get(body, 'conversation.self.phoneNumber'),
-      ...body.conversation.correspondents.map(d => d.phoneNumber)
+      getFullNumber(_.get(body, 'conversation.self')),
+      ...body.conversation.correspondents.map(d => getFullNumber(d))
     ]
   }
-  all = all.map(s => formatPhone(s)).filter(d => d)
+  all = all.map(s => formatPhone(s))
   let contacts = await match(all)
   let arr = Object.keys(contacts).reduce((p, k) => {
     return [
@@ -226,8 +226,8 @@ async function doSyncOne (contact, body, formData, isManuallySync) {
   if (!isManuallySync) {
     desc = await ls.get(sessid) || ''
   }
-  let toNumber = _.get(body, 'call.to.phoneNumber')
-  let fromNumber = _.get(body, 'call.from.phoneNumber')
+  let toNumber = getFullNumber(_.get(body, 'call.to'))
+  let fromNumber = getFullNumber(_.get(body, 'call.from'))
   let duration = _.get(body, 'call.duration') || 0
   let recording = _.get(body, 'call.recording')
     ? `<p>Recording link: ${body.call.recording.link}</p>`
@@ -268,10 +268,14 @@ async function doSyncOne (contact, body, formData, isManuallySync) {
   if (!isManuallySync) {
     mainBody = await filterLoggered(mainBody)
   }
+  const descFormatted = (desc || '')
+    .split('\n')
+    .map(d => `<p>${d}</p>`)
+    .join('')
   let bodyAll = mainBody.map(mm => {
     return {
       id: mm.id,
-      body: `<p>${desc || ''}</p><p>${mm.body}</p>${recording}`
+      body: `<div>${descFormatted}</div><p>${mm.body}</p>${recording}`
     }
   })
   for (const uit of bodyAll) {
