@@ -23,6 +23,7 @@ let config = {
   thirdPartyConfigs: {
     showCallLogSyncForm: true,
     serviceName: 'serviceName',
+    appName: 'pipedrive-embeddable-ringcentral-phone-spa',
     pageSize: 200000,
     dbSchema: {
       org_id: {
