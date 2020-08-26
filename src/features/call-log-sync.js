@@ -280,6 +280,10 @@ async function doSyncOne (contact, body, formData, isManuallySync) {
   })
   for (const uit of bodyAll) {
     let bd = {
+      busy_flag: null,
+      conference_meeting_client: null,
+      conference_meeting_id: null,
+      conference_meeting_url: null,
       due_date: dueDate,
       due_time: dueTime,
       duration,
@@ -289,15 +293,20 @@ async function doSyncOne (contact, body, formData, isManuallySync) {
       done: true,
       participants: [
         {
-          person_id: id,
+          person_id: parseInt(id, 10) || '',
           primary_flag: true
         }
       ],
-      person_id: id,
-      org_id: oid,
+      person_id: parseInt(id, 10) || '',
+      org_id: parseInt(oid, 10) || '',
       deal_id: null,
+      lead_id: null,
+      location: null,
+      lead_title: '',
+      public_description: null,
       notification_language_id: 1,
-      assigned_to_user_id: userId
+      _meta: {},
+      attendees: []
     }
     let dealId = await getDealId(contact)
     if (dealId) {

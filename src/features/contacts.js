@@ -49,7 +49,7 @@ export function formatData (data) {
   return data.data.map(d => {
     let { id, name, owner_id: ownerId, label = '', phone, email, org_id: orgId } = d
     let res = {
-      id: id + '',
+      id: (id || '') + '',
       name,
       phoneNumbers: phone.map(p => {
         return {
@@ -58,7 +58,7 @@ export function formatData (data) {
           phoneType: p.label
         }
       }),
-      org_id: orgId + '',
+      org_id: (orgId || '') + '',
       emails: email.map(r => r.value),
       type: serviceName,
       owner_id: ownerId + '',
