@@ -47,7 +47,33 @@ const opts = {
   extensions: ['.map', '.js'],
   minBytes: 3900
 }
-
+const patterns = [{
+  from,
+  to: to1,
+  force: true
+}, /* {
+  from: f2,
+  to: to4,
+  force: true
+}, */ {
+  from: f3,
+  to: to4,
+  force: true
+}, /* {
+  from: f2,
+  to: to4f,
+  force: true
+}, */
+{
+  from: f31,
+  to: to4,
+  force: true
+},
+{
+  from: f32,
+  to: to4,
+  force: true
+}]
 const pug = {
   loader: 'pug-html-loader',
   options: {
@@ -195,33 +221,7 @@ var config = {
       collections: true,
       paths: true
     }),
-    new CopyWebpackPlugin([{
-      from,
-      to: to1,
-      force: true
-    }, /* {
-      from: f2,
-      to: to4,
-      force: true
-    }, */ {
-      from: f3,
-      to: to4,
-      force: true
-    }, /* {
-      from: f2,
-      to: to4f,
-      force: true
-    }, */
-    {
-      from: f31,
-      to: to4,
-      force: true
-    },
-    {
-      from: f32,
-      to: to4,
-      force: true
-    }], {}),
+    new CopyWebpackPlugin({ patterns }),
     new ExtraneousFileCleanupPlugin(opts),
     new webpack.DefinePlugin({
       'process.env.ringCentralConfigs': JSON.stringify(sysConfigDefault.ringCentralConfigs),
