@@ -150,7 +150,7 @@ async function doSync (body, formData, isManuallySync) {
   }
 }
 
-function buildMsgs (body) {
+function buildMsgs (body, contactId) {
   let msgs = _.get(body, 'conversation.messages')
   const arr = []
   for (const m of msgs) {
@@ -170,13 +170,15 @@ function buildMsgs (body) {
     attachments = attachments ? `<p>attachments: </p>${attachments}` : ''
     arr.push({
       body: `<div>SMS: <b>${m.subject}</b> - ${desc} <b>${n}</b> - ${moment(m.creationTime).format('MMM DD, YYYY HH:mm')}${attachments}</div>`,
-      id: m.id
+      id: m.id,
+      done: m.readStatus === 'Read',
+      contactId
     })
   }
   return arr
 }
 
-function buildVoiceMailMsgs (body) {
+function buildVoiceMailMsgs (body, contactId) {
   let msgs = _.get(body, 'conversation.messages')
   const arr = []
   for (const m of msgs) {
@@ -191,25 +193,27 @@ function buildVoiceMailMsgs (body) {
     let links = m.attachments.map(t => t.link).join(', ')
     arr.push({
       body: `<p>Voice mail: ${links} - ${n ? desc : ''} <b>${n}</b> ${moment(m.creationTime).format('MMM DD, YYYY HH:mm')}</p>`,
-      id: m.id
+      id: m.id,
+      done: m.readStatus === 'Read',
+      contactId
     })
   }
   return arr
 }
 
-function buildKey (id) {
-  return `rc-log-${userId}-${id}`
+function buildKey (id, cid) {
+  return `rc-log-${userId}-${id}-${cid}`
 }
 
-async function saveLog (id, engageId) {
-  const key = buildKey(id)
+async function saveLog (id, cid, engageId) {
+  const key = buildKey(id, cid)
   await ls.set(key, engageId)
 }
 
 async function filterLoggered (arr) {
   const res = []
   for (const m of arr) {
-    const key = buildKey(m.id)
+    const key = buildKey(m.id, m.contactId)
     const ig = await ls.get(key)
     if (!ig) {
       res.push(m)
@@ -261,15 +265,16 @@ async function doSyncOne (contact, body, formData, isManuallySync) {
   if (body.call) {
     mainBody = `[${_.get(body, 'call.direction')} ${_.get(body, 'call.result')}] CALL from <b>${body.call.fromMatches.map(d => d.name).join(', ')}</b>(<b>${formatPhoneLocal(fromNumber)}</b>) to <b>${body.call.toMatches.map(d => d.name).join(', ')}</b>(<b>${formatPhoneLocal(toNumber)}</b>)`
   } else if (ctype === 'SMS') {
-    mainBody = buildMsgs(body)
+    mainBody = buildMsgs(body, id)
   } else if (isVoiceMail) {
-    mainBody = buildVoiceMailMsgs(body)
+    mainBody = buildVoiceMailMsgs(body, id)
   }
   let logType = body.call ? 'Call' : ctype
   if (!_.isArray(mainBody)) {
     mainBody = [{
       body: mainBody,
-      id: externalId
+      id: externalId,
+      contactId: id
     }]
   }
   if (!isManuallySync) {
@@ -282,6 +287,7 @@ async function doSyncOne (contact, body, formData, isManuallySync) {
   let bodyAll = mainBody.map(mm => {
     return {
       id: mm.id,
+      ...mm,
       body: `<div>${descFormatted}</div><p>${mm.body}</p>${recording}`
     }
   })
@@ -297,7 +303,7 @@ async function doSyncOne (contact, body, formData, isManuallySync) {
       note: uit.body,
       type: 'call',
       subject: logType,
-      done: true,
+      done: _.isUndefined(uit.done) ? true : uit.done,
       participants: [
         {
           person_id: parseInt(id, 10) || '',
