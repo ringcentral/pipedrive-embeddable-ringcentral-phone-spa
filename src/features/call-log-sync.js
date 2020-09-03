@@ -328,7 +328,7 @@ async function doSyncOne (contact, body, formData, isManuallySync) {
     let res = await fetch.post(url, bd)
     let success = res && res.data
     if (success) {
-      await saveLog(uit.id, res.data.id)
+      await saveLog(uit.id, id, res.data.id)
       notifySyncSuccess({ id, logType })
     } else {
       notify('call log sync to third party failed', 'warn')
