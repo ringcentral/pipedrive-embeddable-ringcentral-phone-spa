@@ -162,7 +162,7 @@ export const phoneNumberSelectors = [
  * thirdPartyService config
  * @param {*} serviceName
  */
-export function thirdPartyServiceConfig (serviceName) {
+export async function thirdPartyServiceConfig (serviceName) {
   console.log(serviceName, 'serviceName')
 
   let services = {

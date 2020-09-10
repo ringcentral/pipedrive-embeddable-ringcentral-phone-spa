@@ -154,13 +154,18 @@ function buildMsgs (body, contactId) {
   let msgs = _.get(body, 'conversation.messages')
   const arr = []
   for (const m of msgs) {
-    let desc = m.direction === 'Outbound'
-      ? 'to'
-      : 'from'
-    let n = m.direction === 'Outbound'
-      ? m.to
-      : [m.from]
-    n = n.map(m => formatPhoneLocal(m.phoneNumber)).join(', ')
+    const fromN = getFullNumber(_.get(m, 'from')) ||
+      getFullNumber(_.get(m, 'from[0]')) || ''
+    const fromName = _.get(m, 'from.name') || _.get(m, 'from.phoneNumber') ||
+      (_.get(m, 'from') || []).map(d => d.name).join(', ') || ''
+    const toN = getFullNumber(_.get(m, 'to')) ||
+      getFullNumber(_.get(m, 'to[0]')) || ''
+    const toName = _.get(m, 'to.name') ||
+      (_.get(m, 'to') || []).map(d => d.name).join(', ') || ''
+    const from = fromN +
+      (fromName ? `(${fromName})` : '')
+    const to = toN +
+      (toName ? `(${toName})` : '')
     let attachments = (m.attachments || [])
       .filter(d => d.type !== 'Text')
       .map(d => {
@@ -169,9 +174,9 @@ function buildMsgs (body, contactId) {
       }).join('')
     attachments = attachments ? `<p>attachments: </p>${attachments}` : ''
     arr.push({
-      body: `<div>SMS: <b>${m.subject}</b> - ${desc} <b>${n}</b> - ${moment(m.creationTime).format('MMM DD, YYYY HH:mm')}${attachments}</div>`,
-      id: m.id,
+      body: `<div>SMS: <b>${m.subject}</b> - from <b>${from}</b> to <b>${to}</b> - ${moment(m.creationTime).format('MMM DD, YYYY HH:mm')}${attachments}</div>`,
       done: m.readStatus === 'Read',
+      id: m.id,
       contactId
     })
   }
@@ -189,7 +194,7 @@ function buildVoiceMailMsgs (body, contactId) {
     let n = isOut
       ? m.to
       : [m.from]
-    n = n.map(m => formatPhoneLocal(m.phoneNumber || m.extensionNumber)).join(', ')
+    n = n.map(m => formatPhoneLocal(getFullNumber(m))).join(', ')
     let links = m.attachments.map(t => t.link).join(', ')
     arr.push({
       body: `<p>Voice mail: ${links} - ${n ? desc : ''} <b>${n}</b> ${moment(m.creationTime).format('MMM DD, YYYY HH:mm')}</p>`,
@@ -237,6 +242,8 @@ async function doSyncOne (contact, body, formData, isManuallySync) {
   if (!isManuallySync) {
     desc = await ls.get(sessid) || ''
   }
+  const result = _.get(body, 'call.result')
+  const done = !!(result && result !== 'Missed')
   let toNumber = getFullNumber(_.get(body, 'call.to'))
   let fromNumber = getFullNumber(_.get(body, 'call.from'))
   let duration = _.get(body, 'call.duration') || 0
@@ -274,6 +281,7 @@ async function doSyncOne (contact, body, formData, isManuallySync) {
     mainBody = [{
       body: mainBody,
       id: externalId,
+      done,
       contactId: id
     }]
   }
@@ -286,8 +294,8 @@ async function doSyncOne (contact, body, formData, isManuallySync) {
     .join('')
   let bodyAll = mainBody.map(mm => {
     return {
-      id: mm.id,
       ...mm,
+      id: mm.id,
       body: `<div>${descFormatted}</div><p>${mm.body}</p>${recording}`
     }
   })
