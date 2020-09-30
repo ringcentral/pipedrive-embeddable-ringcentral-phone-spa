@@ -20,7 +20,7 @@ import {
   match
 } from 'ringcentral-embeddable-extension-common/src/common/db'
 import { getUserId } from './activities'
-import { notifySyncSuccess, getDealId } from './call-log-sync-to-deal'
+import { notifySyncSuccess } from './call-log-sync-to-deal'
 import * as ls from 'ringcentral-embeddable-extension-common/src/common/ls'
 import copy from 'json-deep-copy'
 
@@ -329,10 +329,10 @@ async function doSyncOne (contact, body, formData, isManuallySync) {
       _meta: {},
       attendees: []
     }
-    let dealId = await getDealId(contact)
-    if (dealId) {
-      bd.deal_id = dealId
-    }
+    // let dealId = await getDealId(contact)
+    // if (dealId) {
+    //   bd.deal_id = dealId
+    // }
     let res = await fetch.post(url, bd)
     let success = res && res.data
     if (success) {
