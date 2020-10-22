@@ -16,7 +16,6 @@ import { setCache, getCache } from 'ringcentral-embeddable-extension-common/src/
 import fetch from 'ringcentral-embeddable-extension-common/src/common/fetch'
 import { thirdPartyConfigs } from 'ringcentral-embeddable-extension-common/src/common/app-config'
 import {
-  remove,
   insert,
   getByPage,
   match
@@ -123,11 +122,6 @@ async function fetchAllContacts (_recent) {
   const lastSync = lastSyncOffset
   let start = await getCache(lastSync) || 0
   let hasMore = true
-  if (!recent && !start) {
-    await remove().catch(e => {
-      console.log(e.stack)
-    })
-  }
   while (hasMore) {
     let res = await getContact(start).catch(console.debug)
     if (res && res.data) {
@@ -176,7 +170,9 @@ export const getContacts = async function (page = 1) {
     console.debug('use cache')
     return cached
   }
-  fetchAllContacts()
+  if (!window.rc.syncTimestamp && !cached.result.length) {
+    fetchAllContacts()
+  }
   return final
 }
 
