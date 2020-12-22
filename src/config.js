@@ -217,7 +217,7 @@ export async function thirdPartyServiceConfig (serviceName) {
       dd.type = 'rc-show-add-contact-panel'
       window.postMessage(dd, '*')
     } else if (
-      type === 'rc-call-ring-notify'
+      type === 'rc-active-call-notify'
     ) {
       showContactInfoPanel(call)
     } else if (type === 'rc-region-settings-notify') {
