@@ -1,6 +1,6 @@
 {
   "name": "Ringcentral Embeddable Widgets for Pipedrive",
-  "version": "2.13.1",
+  "version": "3.0.0",
   "description": "Add RingCentral Embeddable Voice widgets to Pipedrive",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1YqYvCEeGGNOgtKrx8DfG33ujx7NgAwbyVpikug4mHiNvKZYWulw7lY5fjaD8wAy5bmXnkfULDzqMkL8UOxUcf8qD2lJFcLm+BqBtqNnoSz00vwjSOxXrcDvpvsMrjEZkI7N/FD60sTWp1U+QOehua7OboUpXb4iV7TQfppz3PsCz7qGOa4PWjUMAZTTgomUtW47Es6f/vjIeejs7Ihro3Al5Jo3SWIbjpjSU9BK34XgFvtcZx3lZQgfFiK+ZNyxlx8mgC/PLqJB+uX63ywMrT86TdcfxBuaThy98S8SCXjZTpHOP6X5pmGMk0lPM06hwxmSCBZgHOHL/Wk6r8FUlQIDAQAB",
   "permissions": [
