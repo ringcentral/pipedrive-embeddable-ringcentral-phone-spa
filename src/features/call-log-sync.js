@@ -9,8 +9,7 @@ import {
 import _ from 'lodash'
 import {
   notify,
-  host,
-  formatPhone
+  host
 } from 'ringcentral-embeddable-extension-common/src/common/helpers'
 import fetch from 'ringcentral-embeddable-extension-common/src/common/fetch'
 import moment from 'moment'
