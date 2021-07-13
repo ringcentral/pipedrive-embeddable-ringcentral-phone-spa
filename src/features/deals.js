@@ -138,7 +138,8 @@ export async function searchByPersonId (contact) {
       'id',
       'status',
       'person_id',
-      'org_id'
+      'org_id',
+      'title'
     ])
   })
   return final
@@ -156,7 +157,7 @@ export async function searchByPersonId (contact) {
 // }
 
 function getDeals (token, start, userId = '', filterId = '') {
-  let url = `${host}/v1/deals?limit=500&person_id=${userId}&start=${start}&get_summary=0&totals_convert_currency=default_currency&session_token=${token}&strict_mode=true&status=open&sort=update_time%20ASC&filter_id=${filterId}`
+  let url = `${host}/v1/deals?limit=20&person_id=${userId}&start=${start}&get_summary=0&totals_convert_currency=default_currency&session_token=${token}&strict_mode=true&status=open&sort=update_time%20ASC&filter_id=${filterId}`
   return fetch.get(url)
 }
 

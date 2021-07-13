@@ -2,8 +2,7 @@
  * call log sync feature
  */
 
-import { thirdPartyConfigs } from 'ringcentral-embeddable-extension-common/src/common/app-config'
-import { createForm, formatPhoneLocal, getContactInfo } from './call-log-sync-form'
+import { formatPhoneLocal } from '../common/common'
 import {
   showAuthBtn
 } from './auth'
@@ -23,43 +22,45 @@ import { getUserId } from './activities'
 import { notifySyncSuccess } from './call-log-sync-to-deal'
 import * as ls from 'ringcentral-embeddable-extension-common/src/common/ls'
 import copy from 'json-deep-copy'
+import { getContactInfo } from '../common/get-contact-info'
 
-let {
-  showCallLogSyncForm,
-  serviceName
-} = thirdPartyConfigs
-
-let prev = {
-  time: Date.now(),
-  sessionId: '',
-  body: {}
-}
+// let prev = {
+//   time: Date.now(),
+//   sessionId: '',
+//   body: {}
+// }
 
 const userId = getUserId()
 
-function checkMerge (body) {
-  const maxDiff = 100
-  const now = Date.now()
-  const sid = _.get(body, 'conversation.conversationId')
-  const type = _.get(body, 'conversation.type')
-  if (type !== 'SMS') {
-    return body
-  }
-  if (prev.sessionId === sid && prev.time - now < maxDiff) {
-    let msgs = [
-      ...body.conversation.messages,
-      ...prev.body.conversation.messages
-    ]
-    msgs = _.uniqBy(msgs, (e) => e.id)
-    body.conversation.messages = msgs
-    prev.body = copy(body)
-    return body
-  } else {
-    prev.time = now
-    prev.sessionId = sid
-    prev.body = copy(body)
-    return body
-  }
+// function checkMerge (body) {
+//   const maxDiff = 100
+//   const now = Date.now()
+//   const sid = _.get(body, 'conversation.conversationId')
+//   const type = _.get(body, 'conversation.type')
+//   if (type !== 'SMS') {
+//     return body
+//   }
+//   if (prev.sessionId === sid && prev.time - now < maxDiff) {
+//     let msgs = [
+//       ...body.conversation.messages,
+//       ...prev.body.conversation.messages
+//     ]
+//     msgs = _.uniqBy(msgs, (e) => e.id)
+//     body.conversation.messages = msgs
+//     prev.body = copy(body)
+//     return body
+//   } else {
+//     prev.time = now
+//     prev.sessionId = sid
+//     prev.body = copy(body)
+//     return body
+//   }
+// }
+
+function buildId (body) {
+  return body.id ||
+  _.get(body, 'call.sessionId') ||
+  _.get(body, 'conversation.conversationLogId')
 }
 
 /**
@@ -82,54 +83,39 @@ export async function syncCallLogToThirdParty (body) {
   if (!window.rc.userAuthed) {
     return isManuallySync ? showAuthBtn() : null
   }
-  if (showCallLogSyncForm && isManuallySync) {
-    body = checkMerge(body)
-    let contactRelated = await getContactInfo(body, serviceName)
-    if (
-      !contactRelated ||
-      (!contactRelated.froms && !contactRelated.tos)
-    ) {
-      const b = copy(body)
-      b.type = 'rc-show-add-contact-panel'
-      return window.postMessage(b, '*')
+  const id = buildId(body)
+  const info = getContactInfo(body)
+  let relatedContacts = await match(info.numbers)
+  relatedContacts = _.flatten(
+    Object.values(relatedContacts)
+  )
+  for (const c of relatedContacts) {
+    const obj = {
+      type: 'rc-init-call-log-form',
+      isManuallySync,
+      callLogProps: {
+        relatedContacts: [c],
+        info,
+        id,
+        isManuallySync,
+        body
+      }
     }
-    return createForm(
-      body,
-      serviceName,
-      (formData) => doSync(body, formData, isManuallySync)
-    )
-  } else {
-    doSync(body, {}, isManuallySync)
+    if (isManuallySync) {
+      if (
+        !relatedContacts ||
+        !relatedContacts.length
+      ) {
+        const b = copy(body)
+        Object.assign(b, info)
+        b.type = 'rc-show-add-contact-panel'
+        return window.postMessage(b, '*')
+      }
+      window.postMessage(obj, '*')
+    } else {
+      window.postMessage(obj, '*')
+    }
   }
-}
-
-/**
- * get contact id
- * @param {object} body
- */
-async function getSyncContacts (body) {
-  let all = []
-  if (body.call) {
-    let nf = getFullNumber(_.get(body, 'to')) ||
-      getFullNumber(_.get(body, 'call.to'))
-    let nt = getFullNumber(_.get(body, 'from')) ||
-      getFullNumber(_.get(body.call, 'from'))
-    all = [nt, nf]
-  } else {
-    all = [
-      getFullNumber(_.get(body, 'conversation.self')),
-      ...body.conversation.correspondents.map(d => getFullNumber(d))
-    ]
-  }
-  all = all.map(s => formatPhone(s))
-  let contacts = await match(all)
-  let arr = Object.keys(contacts).reduce((p, k) => {
-    return [
-      ...p,
-      ...contacts[k]
-    ]
-  }, [])
-  return _.uniqBy(arr, d => d.id)
 }
 
 /**
@@ -139,13 +125,17 @@ async function getSyncContacts (body) {
  * @param {*} body
  * @param {*} formData
  */
-async function doSync (body, formData, isManuallySync) {
-  let contacts = await getSyncContacts(body)
-  // console.log(contacts, 'ccccc')
-  if (!contacts.length) {
-    return notify('No related contacts')
+export async function doSync (
+  body,
+  formData,
+  isManuallySync,
+  contacts,
+  info
+) {
+  if (!contacts || !contacts.length) {
+    return false
   }
-  for (let contact of contacts) {
+  for (const contact of contacts) {
     await doSyncOne(contact, body, formData, isManuallySync)
   }
 }
@@ -320,7 +310,7 @@ async function doSyncOne (contact, body, formData, isManuallySync) {
       ],
       person_id: parseInt(id, 10) || '',
       org_id: parseInt(oid, 10) || '',
-      deal_id: null,
+      deal_id: formData.deal || null,
       lead_id: null,
       location: null,
       lead_title: '',
