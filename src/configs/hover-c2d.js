@@ -20,7 +20,7 @@ export const hoverShowClickToCallButton = [
   {
     // must match url
     shouldAct: href => {
-      return /\/persons\/list\/user\/(\d+)|everyone/.test(href)
+      return /(\/persons)?\/list\/user\/(\d+)|everyone/.test(href)
     },
 
     // elemment selector
@@ -28,10 +28,13 @@ export const hoverShowClickToCallButton = [
 
     // function to get phone numbers, suport async function
     getContactPhoneNumbers: async elem => {
-      let phoneNodes = elem.querySelectorAll('td[data-field="phone"] .value button')
+      let phoneNodes = elem.querySelectorAll('td[data-field="phone"]')
+      if (!phoneNodes.length) {
+        phoneNodes = elem.querySelectorAll('td[data-field="person.phone"]')
+      }
       return Array.from(phoneNodes)
         .map((p, i) => {
-          let nn = p.querySelector('span:not([class])')
+          let nn = p.querySelector('.gridCell__salesPhoneValue')
           let number = nn ? nn.textContent.trim() : ''
           let title = p.querySelector('.gridCell__valueRemark')
           let title0 = title ? title.textContent : 'Direct'
