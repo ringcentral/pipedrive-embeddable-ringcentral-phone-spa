@@ -50,8 +50,15 @@ let {
  */
 export async function thirdPartyServiceConfig (serviceName) {
   console.log(serviceName, 'serviceName')
-
+  const hideContactForm = await ls.get('rc-hideContactForm') || false
   let services = {
+    settingsPath: '/settings',
+    settings: [
+      {
+        name: 'Do not show create new contact form',
+        value: hideContactForm
+      }
+    ],
     name: serviceName,
     // // show contacts in ringcentral widgets
     contactsPath: '/contacts',
@@ -134,6 +141,11 @@ export async function thirdPartyServiceConfig (serviceName) {
         responseId: data.requestId,
         response: { data: 'ok' }
       })
+    } else if (data.path === '/settings') {
+      const arr = data.body.settings
+      const hideContactForm = arr[0].value
+      window.rc.hideContactForm = hideContactForm
+      ls.set('rc-hideContactForm', window.rc.hideContactForm)
     } else if (path === '/contacts') {
       let isMannulSync = _.get(data, 'body.type') === 'manual'
       let page = _.get(data, 'body.page') || 1
@@ -246,6 +258,7 @@ export async function thirdPartyServiceConfig (serviceName) {
  * could init dom insert etc here
  */
 export async function initThirdParty () {
+  window.rc.hideContactForm = await ls.get('rc-hideContactForm') || false
   window.rc.countryCode = await ls.get('rc-country-code') || undefined
   console.log('rc.countryCode:', window.rc.countryCode)
   let userAuthed = await ls.get('userAuthed') || false

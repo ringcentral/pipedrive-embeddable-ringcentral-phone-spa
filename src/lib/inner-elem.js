@@ -104,6 +104,9 @@ export default () => {
       const id = autoLogPrefix + sid
       saveNote(id)
     } else if (type === 'rc-show-add-contact-panel') {
+      if (window.rc.hideContactForm) {
+        return console.log('hideContactForm enabled')
+      }
       if (!window.rc.userAuthed) {
         showAuthBtn()
         return
