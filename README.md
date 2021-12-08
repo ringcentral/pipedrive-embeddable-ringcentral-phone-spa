@@ -32,7 +32,6 @@ Created with [ringcentral-embeddable-extension-factory](https://github.com/ringc
 ![ ](screenshots/s6-min.png) | ![ ](screenshots/s7-min.png)
 ![ ](screenshots/s9-min.png) | ![ ](screenshots/s8-min.png)
 
-
 ## Try it
 
 - Download the zip from release page: [https://github.com/ringcentral/pipedrive-embeddable-ringcentral-phone-spa/releases](https://github.com/ringcentral/pipedrive-embeddable-ringcentral-phone-spa/releases)
@@ -41,26 +40,21 @@ Created with [ringcentral-embeddable-extension-factory](https://github.com/ringc
 - Make sure you ***turn off*** `Block third-party cookies` in `chrome://settings/content/cookies`
 - Make sure you ***turn off*** `Block third-party cookies` in `chrome://settings/content/cookies`
 
-## Build and Use
-
-1. build `content.js`
+## Dev
 
 ```bash
-
-# install dependencies, requires nodejs8.10+
 npm i
 
-# download embeddable
+# edit .env, fill in all required
+cp sample.env .env
+
+# download files needed
 npm run down
 
-# create config file, and set proper thirdPartyConfigs.serviceName
-cp config.sample.js config.js
-
-# then run it
+# start
 npm start
 
-# edit src/*.js, webpack will auto-rebuild,
-# after rebuild, do not forget to refresh in extension page
+# then load dist folder as unpacked extension
 ```
 
 1. Go to Chrome extensions page.
@@ -70,20 +64,9 @@ npm start
 
 ## Build with custom RingCentral clientID/appServer
 
-- Create an app from [https://developer.ringcentral.com/](https://developer.ringcentral.com/), make sure you choose a browser based app, and set all permissions, and add `https://ringcentral.github.io/ringcentral-embeddable/redirect.html` to your redirect URI list, Edit `config.js`.
+- Create an app from [https://developer.ringcentral.com/](https://developer.ringcentral.com/), make sure you choose a browser based app, and set all permissions, and add `https://ringcentral.github.io/ringcentral-embeddable/redirect.html` to your redirect URI list, Edit `.env`.
 
-- Fill your RingCentral app's clientID and appServer in `config.js`.
-
-```js
-
-  ringCentralConfigs: {
-    // your ringCentral app's Client ID
-    clientID: 'your-clientID',
-
-    // your ringCentral app's Auth Server URL
-    appServer: 'your ringCentral app Auth Server URL'
-  },
-```
+- Fill your RingCentral app's clientID and appServer in `.env`.
 
 ## Changelog
 
