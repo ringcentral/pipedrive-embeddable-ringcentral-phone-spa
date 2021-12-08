@@ -35,9 +35,9 @@ import { getSessionToken } from './common'
 import fetch from 'ringcentral-embeddable-extension-common/src/common/fetch'
 
 async function addOne (i) {
-  let token = getSessionToken()
-  let url = `${host}/api/v1/deals?session_token=${token}&strict_mode=true`
-  let da = {
+  const token = getSessionToken()
+  const url = `${host}/api/v1/deals?session_token=${token}&strict_mode=true`
+  const da = {
     visible_to: 3,
     currency: 'CNY',
     person_id: 1,
@@ -47,7 +47,7 @@ async function addOne (i) {
     org_id: 1
   }
   console.log(i)
-  let res = await fetch.post(url, da)
+  const res = await fetch.post(url, da)
   console.log(res)
 }
 

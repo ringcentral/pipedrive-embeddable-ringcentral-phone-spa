@@ -124,7 +124,7 @@ import { addFilter, delFilter } from './filter'
 // }
 
 export async function searchByPersonId (contact) {
-  let token = getSessionToken()
+  const token = getSessionToken()
   const filterId = await addFilter(contact)
   const res = await getDeals(token, 0, contact.id, filterId)
   if (filterId) {
@@ -133,7 +133,7 @@ export async function searchByPersonId (contact) {
   if (!res || !res.data) {
     return []
   }
-  let final = res.data.map(d => {
+  const final = res.data.map(d => {
     return _.pick(d, [
       'id',
       'status',
@@ -157,7 +157,7 @@ export async function searchByPersonId (contact) {
 // }
 
 function getDeals (token, start, userId = '', filterId = '') {
-  let url = `${host}/v1/deals?limit=20&person_id=${userId}&start=${start}&get_summary=0&totals_convert_currency=default_currency&session_token=${token}&strict_mode=true&status=open&sort=update_time%20ASC&filter_id=${filterId}`
+  const url = `${host}/v1/deals?limit=20&person_id=${userId}&start=${start}&get_summary=0&totals_convert_currency=default_currency&session_token=${token}&strict_mode=true&status=open&sort=update_time%20ASC&filter_id=${filterId}`
   return fetch.get(url)
 }
 

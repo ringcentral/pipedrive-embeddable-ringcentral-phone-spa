@@ -127,7 +127,7 @@ export default (props) => {
         onCancel={() => setShowModal(false)}
         zIndex={10003}
       >
-        { AddSMS }
+        {AddSMS}
         {
           smses.map(renderSms)
         }

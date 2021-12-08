@@ -46,8 +46,8 @@ const lastSyncOffset = 'last-sync-offset'
  */
 export function formatData (data) {
   return data.data.map(d => {
-    let { id, name, owner_id: ownerId, label = '', phone, email, org_id: orgId } = d
-    let res = {
+    const { id, name, owner_id: ownerId, label = '', phone, email, org_id: orgId } = d
+    const res = {
       id: (id || '') + '',
       name,
       phoneNumbers: phone.map(p => {
@@ -74,8 +74,8 @@ export function formatData (data) {
  * @param {Event} e
  */
 function onClickContactPanel (e) {
-  let { target } = e
-  let { classList } = target
+  const { target } = e
+  const { classList } = target
   if (classList.contains('rc-close-contact')) {
     document
       .querySelector('.rc-contact-panel')
@@ -87,7 +87,7 @@ function onClickContactPanel (e) {
  * conatct info iframe loaded event
  */
 function onloadIframe () {
-  let dom = document
+  const dom = document
     .querySelector('.rc-contact-panel')
   dom && dom.classList.add('rc-contact-panel-loaded')
 }
@@ -99,11 +99,11 @@ function onloadIframe () {
  * or CRM site supply with special api for it
  */
 export const getContact = async function (start = 0) {
-  let token = getSessionToken()
+  const token = getSessionToken()
   // let self = await getSelfInfo(token)
   // let uid = self.data.id
   const sort = encodeURIComponent('update_time DESC')
-  let url = `${host}/api/v1/persons/list:(cc_email,active_flag,id,name,label,org_id,email,phone,closed_deals_count,open_deals_count,update_time,next_activity_date,owner_id,next_activity_time)?session_token=${token}&strict_mode=true&user_id=&sort=${sort}&label=&start=${start}&type=person&_=${+new Date()}`
+  const url = `${host}/api/v1/persons/list:(cc_email,active_flag,id,name,label,org_id,email,phone,closed_deals_count,open_deals_count,update_time,next_activity_date,owner_id,next_activity_time)?session_token=${token}&strict_mode=true&user_id=&sort=${sort}&label=&start=${start}&type=person&_=${+new Date()}`
   return fetch.get(url)
 }
 
@@ -118,14 +118,14 @@ async function fetchAllContacts (_recent) {
   console.debug('running fetchAllContacts')
   window.rc.isFetchingContacts = true
   loadingContacts()
-  let recent = !!_recent
+  const recent = !!_recent
   const lastSync = lastSyncOffset
   let start = await getCache(lastSync) || 0
   let hasMore = true
   while (hasMore) {
-    let res = await getContact(start).catch(console.debug)
+    const res = await getContact(start).catch(console.debug)
     if (res && res.data) {
-      let final = formatData(res)
+      const final = formatData(res)
       start = _.get(res, 'additional_data.pagination.start') + _.get(res, 'additional_data.pagination.limit')
       hasMore = recent
         ? false
@@ -140,7 +140,7 @@ async function fetchAllContacts (_recent) {
   if (!recent) {
     await setCache(lastSync, 0, 'never')
   }
-  let now = Date.now()
+  const now = Date.now()
   window.rc.syncTimestamp = now
   await ls.set('syncTimestamp', now)
   window.rc.isFetchingContacts = false
@@ -154,7 +154,7 @@ async function fetchAllContacts (_recent) {
  * get contact lists
  */
 export const getContacts = async function (page = 1) {
-  let final = {
+  const final = {
     result: [],
     hasMore: false
   }
@@ -165,7 +165,7 @@ export const getContacts = async function (page = 1) {
     showAuthBtn()
     return final
   }
-  let cached = await getByPage(page).catch(e => console.log(e.stack))
+  const cached = await getByPage(page).catch(e => console.log(e.stack))
   if (cached && cached.result && cached.result.length) {
     console.debug('use cache')
     return cached
@@ -177,7 +177,7 @@ export const getContacts = async function (page = 1) {
 }
 
 export function hideContactInfoPanel () {
-  let dom = document
+  const dom = document
     .querySelector('.rc-contact-panel')
   dom && dom.classList.add('rc-hide-to-side')
 }
@@ -202,8 +202,8 @@ export async function showContactInfoPanel (call) {
     return
   }
   phone = formatPhone(phone)
-  let contacts = await match([phone], 1)
-  let contact = _.get(contacts, `${phone}[0]`)
+  const contacts = await match([phone], 1)
+  const contact = _.get(contacts, `${phone}[0]`)
   if (!contact) {
     return
   }
@@ -211,8 +211,8 @@ export async function showContactInfoPanel (call) {
   // if (contactTrLinkElem) {
   //   return showNativeContact(contact, contactTrLinkElem)
   // }
-  let url = `${host}/person/${contact.id}`
-  let elem = createElementFromHTML(
+  const url = `${host}/person/${contact.id}`
+  const elem = createElementFromHTML(
     `
     <div class="animate rc-contact-panel" draggable="false">
       <div class="rc-close-box">
@@ -233,7 +233,7 @@ export async function showContactInfoPanel (call) {
   )
   elem.onclick = onClickContactPanel
   elem.querySelector('iframe').onload = onloadIframe
-  let old = document
+  const old = document
     .querySelector('.rc-contact-panel')
   old && old.remove()
 
@@ -242,11 +242,11 @@ export async function showContactInfoPanel (call) {
 }
 
 function loadingContacts () {
-  let loadingContactsBtn = document.getElementById('rc-reloading-contacts')
+  const loadingContactsBtn = document.getElementById('rc-reloading-contacts')
   if (loadingContactsBtn) {
     return
   }
-  let elem = createElementFromHTML(
+  const elem = createElementFromHTML(
     `
     <span
       class="rc-reloading-contacts"
@@ -259,7 +259,7 @@ function loadingContacts () {
 }
 
 function stopLoadingContacts () {
-  let loadingContactsBtn = document.getElementById('rc-reloading-contacts')
+  const loadingContactsBtn = document.getElementById('rc-reloading-contacts')
   if (loadingContactsBtn) {
     loadingContactsBtn.remove()
   }

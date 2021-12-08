@@ -28,7 +28,7 @@ export async function updateUserAuthed (authed) {
  * user start auth process, hide auth button
  */
 export function hideAuthBtn () {
-  let dom = document.querySelector('.rc-auth-button-wrap')
+  const dom = document.querySelector('.rc-auth-button-wrap')
   dom && dom.classList.add('rc-hide-to-side')
 }
 
@@ -47,7 +47,7 @@ export function showAuthBtn () {
  * hide auth panel when auth end
  */
 export function hideAuthPanel () {
-  let frameWrap = document.getElementById('rc-auth-hs')
+  const frameWrap = document.getElementById('rc-auth-hs')
   frameWrap && frameWrap.classList.add('rc-hide-to-side')
 }
 
@@ -82,7 +82,7 @@ export async function unAuth () {
   await updateUserAuthed(false)
   clearTimeout(tokenHandler)
   notifyRCAuthed(false)
-  let refreshContactsBtn = document.getElementById('rc-reload-contacts')
+  const refreshContactsBtn = document.getElementById('rc-reload-contacts')
   if (refreshContactsBtn) {
     refreshContactsBtn.remove()
   }

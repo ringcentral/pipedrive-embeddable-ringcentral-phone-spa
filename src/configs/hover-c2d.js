@@ -34,7 +34,7 @@ export const hoverShowClickToCallButton = [
       }
       return Array.from(phoneNodes)
         .map((p, i) => {
-          let nn = p.querySelector('.gridCell__salesPhoneValue')
+          const nn = p.querySelector('.gridCell__salesPhoneValue')
           let number = nn ? nn.textContent.trim() : ''
           let title = p.querySelector('.gridCell__valueRemark')
           let title0 = title ? title.textContent : 'Direct'

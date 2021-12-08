@@ -124,7 +124,7 @@ export default () => {
       const name = call.direction === 'Inbound'
         ? _.get(call, 'from.name')
         : _.get(call, 'to.name')
-      let res = await match([phone])
+      const res = await match([phone])
       if (_.isEmpty(res)) {
         setData({
           phone,

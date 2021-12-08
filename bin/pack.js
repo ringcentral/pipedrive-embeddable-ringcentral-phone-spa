@@ -21,8 +21,8 @@ const config = [
 
 async function run () {
   rm('-rf', '*.zip')
-  for (let v of config) {
-    let cmd = `zip -vr ${pack.name}-${v.name}-${pack.version}.zip ${v.folder}/ -x "*.DS_Store"`
+  for (const v of config) {
+    const cmd = `zip -vr ${pack.name}-${v.name}-${pack.version}.zip ${v.folder}/ -x "*.DS_Store"`
     exec(cmd)
   }
 }

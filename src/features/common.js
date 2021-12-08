@@ -7,8 +7,8 @@ import _ from 'lodash'
  * get session token for request from server
  */
 export function getSessionToken () {
-  let { cookie } = document
-  let arr = cookie.match(/pipe-session-token=([^;]+);/)
+  const { cookie } = document
+  const arr = cookie.match(/pipe-session-token=([^;]+);/)
   return arr ? arr[1] : ''
 }
 

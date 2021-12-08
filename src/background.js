@@ -15,7 +15,7 @@ export function checkTab (tab) {
    */
 }
 
-let list = []
+const list = []
 if (thirdPartyConfigs.upgradeServer) {
   list.push(
     new RegExp(

@@ -71,8 +71,8 @@ export async function syncCallLogToThirdParty (body) {
   // if (result !== 'Call connected') {
   //   return
   // }
-  let isManuallySync = !body.triggerType || body.triggerType === 'manual'
-  let isAutoSync = body.triggerType === 'callLogSync' || body.triggerType === 'auto'
+  const isManuallySync = !body.triggerType || body.triggerType === 'manual'
+  const isAutoSync = body.triggerType === 'callLogSync' || body.triggerType === 'auto'
   if (!isAutoSync && !isManuallySync) {
     return
   }
@@ -140,7 +140,7 @@ export async function doSync (
 }
 
 function buildMsgs (body, contactId) {
-  let msgs = _.get(body, 'conversation.messages')
+  const msgs = _.get(body, 'conversation.messages')
   const arr = []
   for (const m of msgs) {
     const fromN = getFullNumber(_.get(m, 'from')) ||
@@ -173,18 +173,18 @@ function buildMsgs (body, contactId) {
 }
 
 function buildVoiceMailMsgs (body, contactId) {
-  let msgs = _.get(body, 'conversation.messages')
+  const msgs = _.get(body, 'conversation.messages')
   const arr = []
   for (const m of msgs) {
-    let isOut = m.direction === 'Outbound'
-    let desc = isOut
+    const isOut = m.direction === 'Outbound'
+    const desc = isOut
       ? 'to'
       : 'from'
     let n = isOut
       ? m.to
       : [m.from]
     n = n.map(m => formatPhoneLocal(getFullNumber(m))).join(', ')
-    let links = m.attachments.map(t => t.link).join(', ')
+    const links = m.attachments.map(t => t.link).join(', ')
     arr.push({
       body: `<p>Voice mail: ${links} - ${n ? desc : ''} <b>${n}</b> ${moment(m.creationTime).format('MMM DD, YYYY HH:mm')}</p>`,
       id: m.id,
@@ -224,7 +224,7 @@ async function filterLoggered (arr) {
  * @param {*} formData
  */
 async function doSyncOne (contact, body, formData, isManuallySync) {
-  let { id, org_id: oid } = contact
+  const { id, org_id: oid } = contact
   let desc = formData.description
   const sid = _.get(body, 'call.telephonySessionId') || 'not-exist'
   const sessid = autoLogPrefix + sid
@@ -233,20 +233,20 @@ async function doSyncOne (contact, body, formData, isManuallySync) {
   }
   const result = _.get(body, 'call.result')
   const done = !!(result && result !== 'Missed')
-  let toNumber = getFullNumber(_.get(body, 'call.to'))
-  let fromNumber = getFullNumber(_.get(body, 'call.from'))
+  const toNumber = getFullNumber(_.get(body, 'call.to'))
+  const fromNumber = getFullNumber(_.get(body, 'call.from'))
   let duration = _.get(body, 'call.duration') || 0
-  let recording = _.get(body, 'call.recording')
+  const recording = _.get(body, 'call.recording')
     ? `<p>Recording link: ${body.call.recording.link}</p>`
     : ''
-  let token = getSessionToken()
-  let externalId = body.id ||
+  const token = getSessionToken()
+  const externalId = body.id ||
     _.get(body, 'call.sessionId') ||
     _.get(body, 'conversation.conversationLogId')
-  let url = `${host}/api/v1/activities?session_token=${token}&strict_mode=true`
-  let time = _.get(body, 'call.startTime') ||
+  const url = `${host}/api/v1/activities?session_token=${token}&strict_mode=true`
+  const time = _.get(body, 'call.startTime') ||
     _.get('body', 'conversation.messages[0].creationTime')
-  let dueDate = moment.utc(time).format('YYYY-MM-DD')
+  const dueDate = moment.utc(time).format('YYYY-MM-DD')
   let h = Math.floor(duration / 3600).toString()
   let m = Math.ceil((duration - h * 3600) / 60).toString()
   // let s = Math.floor(duration % 60).toString()
@@ -254,10 +254,10 @@ async function doSyncOne (contact, body, formData, isManuallySync) {
   // s = s.length > 1 ? s : '0' + s
   m = m.length > 1 ? m : '0' + m
   duration = `${h}:${m}`
-  let dueTime = moment.utc(time).format('HH:mm')
+  const dueTime = moment.utc(time).format('HH:mm')
   let mainBody = ''
-  let ctype = _.get(body, 'conversation.type')
-  let isVoiceMail = ctype === 'VoiceMail'
+  const ctype = _.get(body, 'conversation.type')
+  const isVoiceMail = ctype === 'VoiceMail'
   if (body.call) {
     mainBody = `[${_.get(body, 'call.direction')} ${_.get(body, 'call.result')}] CALL from <b>${body.call.fromMatches.map(d => d.name).join(', ')}</b>(<b>${formatPhoneLocal(fromNumber)}</b>) to <b>${body.call.toMatches.map(d => d.name).join(', ')}</b>(<b>${formatPhoneLocal(toNumber)}</b>)`
   } else if (ctype === 'SMS') {
@@ -265,7 +265,7 @@ async function doSyncOne (contact, body, formData, isManuallySync) {
   } else if (isVoiceMail) {
     mainBody = buildVoiceMailMsgs(body, id)
   }
-  let logType = body.call ? 'Call' : ctype
+  const logType = body.call ? 'Call' : ctype
   if (!_.isArray(mainBody)) {
     mainBody = [{
       body: mainBody,
@@ -281,7 +281,7 @@ async function doSyncOne (contact, body, formData, isManuallySync) {
     .split('\n')
     .map(d => `<p>${d}</p>`)
     .join('')
-  let bodyAll = mainBody.map(mm => {
+  const bodyAll = mainBody.map(mm => {
     return {
       ...mm,
       id: mm.id,
@@ -289,7 +289,7 @@ async function doSyncOne (contact, body, formData, isManuallySync) {
     }
   })
   for (const uit of bodyAll) {
-    let bd = {
+    const bd = {
       busy_flag: null,
       conference_meeting_client: null,
       conference_meeting_id: null,
@@ -322,8 +322,8 @@ async function doSyncOne (contact, body, formData, isManuallySync) {
     // if (dealId) {
     //   bd.deal_id = dealId
     // }
-    let res = await fetch.post(url, bd)
-    let success = res && res.data
+    const res = await fetch.post(url, bd)
+    const success = res && res.data
     if (success) {
       await saveLog(uit.id, id, res.data.id)
       notifySyncSuccess({ id, logType })

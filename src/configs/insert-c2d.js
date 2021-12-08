@@ -26,15 +26,15 @@ export const insertClickToCallButton = [
     // if can not get phone number, will not insert the call button
     // support async
     getContactPhoneNumbers: async () => {
-      let phones = document.querySelectorAll('.viewContainer:not([style*="none"]) [data-test="phone-label"]')
+      const phones = document.querySelectorAll('.viewContainer:not([style*="none"]) [data-test="phone-label"]')
       return Array.from(phones).map((p, i) => {
-        let n = p.parentNode.nextSibling || p.nextSibling
+        const n = p.parentNode.nextSibling || p.nextSibling
         if (!n) {
           return null
         }
-        let title = n ? n.textContent.trim() : 'Direct' + i
-        let id = title
-        let number = p.textContent.trim().replace('*', '#').replace(' ext. ', '#')
+        const title = n ? n.textContent.trim() : 'Direct' + i
+        const id = title
+        const number = p.textContent.trim().replace('*', '#').replace(' ext. ', '#')
         if (checkPhoneNumber(number)) {
           return {
             id,

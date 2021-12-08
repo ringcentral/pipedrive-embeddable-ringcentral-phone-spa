@@ -40,7 +40,7 @@ import initCallLog from '../lib/call-log-entry'
 import { resyncCheck } from '../lib/auto-resync'
 import copy from 'json-deep-copy'
 
-let {
+const {
   pageSize = 100
 } = thirdPartyConfigs
 
@@ -51,7 +51,7 @@ let {
 export async function thirdPartyServiceConfig (serviceName) {
   console.log(serviceName, 'serviceName')
   const hideContactForm = await ls.get('rc-hideContactForm') || false
-  let services = {
+  const services = {
     settingsPath: '/settings',
     settings: [
       {
@@ -87,14 +87,14 @@ export async function thirdPartyServiceConfig (serviceName) {
   }
 
   // handle ringcentral event
-  let handleRCEvents = async e => {
+  const handleRCEvents = async e => {
     // console.log(e)
-    let { data } = e
+    const { data } = e
     if (!data) {
       return
     }
     console.debug(data)
-    let { type, loggedIn, path, call } = data
+    const { type, loggedIn, path, call } = data
     if (type === 'rc-login-status-notify') {
       console.debug('rc logined', loggedIn)
       window.rc.rcLogined = loggedIn
@@ -128,7 +128,7 @@ export async function thirdPartyServiceConfig (serviceName) {
       return
     }
 
-    let { rc } = window
+    const { rc } = window
 
     if (data.path === '/authorize') {
       if (rc.userAuthed) {
@@ -147,8 +147,8 @@ export async function thirdPartyServiceConfig (serviceName) {
       window.rc.hideContactForm = hideContactForm
       ls.set('rc-hideContactForm', window.rc.hideContactForm)
     } else if (path === '/contacts') {
-      let isMannulSync = _.get(data, 'body.type') === 'manual'
-      let page = _.get(data, 'body.page') || 1
+      const isMannulSync = _.get(data, 'body.type') === 'manual'
+      const page = _.get(data, 'body.page') || 1
       if (isMannulSync && page === 1) {
         window.postMessage({
           type: 'rc-show-sync-menu'
@@ -165,12 +165,12 @@ export async function thirdPartyServiceConfig (serviceName) {
         type: 'rc-transferring-data',
         transferringData: true
       }, '*')
-      let contacts = await getContacts(page)
+      const contacts = await getContacts(page)
       window.postMessage({
         type: 'rc-transferring-data',
         transferringData: false
       }, '*')
-      let nextPage = ((contacts.count || 0) - page * pageSize > 0) || contacts.hasMore
+      const nextPage = ((contacts.count || 0) - page * pageSize > 0) || contacts.hasMore
         ? page + 1
         : null
       rc.postMessage({
@@ -187,7 +187,7 @@ export async function thirdPartyServiceConfig (serviceName) {
         return showAuthBtn()
       }
       let contacts = []
-      let keyword = _.get(data, 'body.searchString')
+      const keyword = _.get(data, 'body.searchString')
       if (keyword) {
         contacts = await search(keyword)
       }
@@ -202,8 +202,8 @@ export async function thirdPartyServiceConfig (serviceName) {
       if (!window.rc.userAuthed) {
         return showAuthBtn()
       }
-      let phoneNumbers = _.get(data, 'body.phoneNumbers') || []
-      let res = await match(phoneNumbers).catch(console.debug)
+      const phoneNumbers = _.get(data, 'body.phoneNumbers') || []
+      const res = await match(phoneNumbers).catch(console.debug)
       rc.postMessage({
         type: 'rc-post-message-response',
         responseId: data.requestId,
@@ -261,7 +261,7 @@ export async function initThirdParty () {
   window.rc.hideContactForm = await ls.get('rc-hideContactForm') || false
   window.rc.countryCode = await ls.get('rc-country-code') || undefined
   console.log('rc.countryCode:', window.rc.countryCode)
-  let userAuthed = await ls.get('userAuthed') || false
+  const userAuthed = await ls.get('userAuthed') || false
   window.rc.userAuthed = userAuthed
   window.rc.syncTimestamp = await ls.get('syncTimestamp') || null
   if (window.rc.userAuthed) {

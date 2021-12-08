@@ -58,7 +58,7 @@ export default function CallLogForm (props) {
         >
           <Input.TextArea rows={row} onClick={removeCountDown} />
         </FormItem>
-      )
+        )
       : null
   }
   // const cls = 'rc-add-call-log-form'
@@ -164,7 +164,7 @@ export default function CallLogForm (props) {
                       }
                     </Select>
                   </FormItem>
-                )
+                  )
                 : null
             }
             <Button

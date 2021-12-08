@@ -36,9 +36,9 @@ import fetch from 'ringcentral-embeddable-extension-common/src/common/fetch'
 export async function addContact ({
   name, email, phone
 }) {
-  let token = getSessionToken()
-  let url = `${host}/api/v1/persons?session_token=${token}&strict_mode=true`
-  let da = {
+  const token = getSessionToken()
+  const url = `${host}/api/v1/persons?session_token=${token}&strict_mode=true`
+  const da = {
     name,
     email: [
       {

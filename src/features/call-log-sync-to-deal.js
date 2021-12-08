@@ -11,7 +11,7 @@ import extLinkSvg from 'ringcentral-embeddable-extension-common/src/common/link-
 import { thirdPartyConfigs } from 'ringcentral-embeddable-extension-common/src/common/app-config'
 import { searchByPersonId } from './deals'
 
-let {
+const {
   serviceName
 } = thirdPartyConfigs
 
@@ -24,9 +24,9 @@ export function notifySyncSuccess ({
   id,
   logType
 }) {
-  let type = 'success'
-  let url = `${host}/person/${id}`
-  let msg = `
+  const type = 'success'
+  const url = `${host}/person/${id}`
+  const msg = `
     <div>
       <div class="rc-pd1b">
         ${logType} log synced to ${serviceName}!
@@ -81,7 +81,7 @@ export function notifySyncSuccess ({
 // }
 
 export async function getDealId (contact) {
-  let deals = await searchByPersonId(contact)
+  const deals = await searchByPersonId(contact)
   return deals
     .map(d => d.id)[0]
 }
