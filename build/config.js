@@ -6,10 +6,10 @@ const keys = [
   'serviceName',
   'appName',
   'upgradeServer',
-  'dbNameFix'
+  'dbNameFix',
+  'pageSize'
 ]
 const defaultConfig = {
-  pageSize: 200000,
   dbSchema: {
     org_id: {
       dataType: 'string'
