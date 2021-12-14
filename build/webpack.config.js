@@ -12,6 +12,7 @@ const env = require('./config')
 const {
   version
 } = require('./common')
+const copy = require('./copy')
 
 const config = {
   mode: 'production',
@@ -58,6 +59,7 @@ const config = {
       collections: true,
       paths: true
     }),
+    copy,
     new AntdDayjsWebpackPlugin(),
     new webpack.DefinePlugin({
       'process.env.ringCentralConfigs': JSON.stringify(env.ringCentralConfigs),
