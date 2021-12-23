@@ -43,8 +43,8 @@
       ],
       "exclude_matches": [],
       "js": [
-        "./react.development.js",
-        "./react-dom.development.js",
+        "./react.production.min.js",
+        "./react-dom.production.min.js",
         "./content.js"
       ]
     }

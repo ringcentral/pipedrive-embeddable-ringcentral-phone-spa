@@ -12,7 +12,7 @@ import {
   host
 } from 'ringcentral-embeddable-extension-common/src/common/helpers'
 import fetch from 'ringcentral-embeddable-extension-common/src/common/fetch'
-import moment from 'moment'
+import dayjs from 'dayjs'
 import { getSessionToken, autoLogPrefix, getFullNumber } from './common'
 import {
   match
@@ -28,7 +28,8 @@ import { getContactInfo } from '../common/get-contact-info'
 //   sessionId: '',
 //   body: {}
 // }
-
+const utc = require('dayjs/plugin/utc')
+dayjs.extend(utc)
 const userId = getUserId()
 
 // function checkMerge (body) {
@@ -163,7 +164,7 @@ function buildMsgs (body, contactId) {
       }).join('')
     attachments = attachments ? `<p>attachments: </p>${attachments}` : ''
     arr.push({
-      body: `<div>SMS: <b>${m.subject}</b> - from <b>${from}</b> to <b>${to}</b> - ${moment(m.creationTime).format('MMM DD, YYYY HH:mm')}${attachments}</div>`,
+      body: `<div>SMS: <b>${m.subject}</b> - from <b>${from}</b> to <b>${to}</b> - ${dayjs(m.creationTime).format('MMM DD, YYYY HH:mm')}${attachments}</div>`,
       done: m.readStatus === 'Read',
       id: m.id,
       contactId
@@ -186,7 +187,7 @@ function buildVoiceMailMsgs (body, contactId) {
     n = n.map(m => formatPhoneLocal(getFullNumber(m))).join(', ')
     const links = m.attachments.map(t => t.link).join(', ')
     arr.push({
-      body: `<p>Voice mail: ${links} - ${n ? desc : ''} <b>${n}</b> ${moment(m.creationTime).format('MMM DD, YYYY HH:mm')}</p>`,
+      body: `<p>Voice mail: ${links} - ${n ? desc : ''} <b>${n}</b> ${dayjs(m.creationTime).format('MMM DD, YYYY HH:mm')}</p>`,
       id: m.id,
       done: m.readStatus === 'Read',
       contactId
@@ -246,7 +247,7 @@ async function doSyncOne (contact, body, formData, isManuallySync) {
   const url = `${host}/api/v1/activities?session_token=${token}&strict_mode=true`
   const time = _.get(body, 'call.startTime') ||
     _.get('body', 'conversation.messages[0].creationTime')
-  const dueDate = moment.utc(time).format('YYYY-MM-DD')
+  const dueDate = dayjs.utc(time).format('YYYY-MM-DD')
   let h = Math.floor(duration / 3600).toString()
   let m = Math.ceil((duration - h * 3600) / 60).toString()
   // let s = Math.floor(duration % 60).toString()
@@ -254,7 +255,7 @@ async function doSyncOne (contact, body, formData, isManuallySync) {
   // s = s.length > 1 ? s : '0' + s
   m = m.length > 1 ? m : '0' + m
   duration = `${h}:${m}`
-  const dueTime = moment.utc(time).format('HH:mm')
+  const dueTime = dayjs.utc(time).format('HH:mm')
   let mainBody = ''
   const ctype = _.get(body, 'conversation.type')
   const isVoiceMail = ctype === 'VoiceMail'

@@ -9,8 +9,11 @@ import {
 import extLinkSvg from 'ringcentral-embeddable-extension-common/src/common/link-external.svg'
 import _ from 'lodash'
 import fetch from 'ringcentral-embeddable-extension-common/src/common/fetch'
-import moment from 'moment'
+import dayjs from 'dayjs'
 import { getSessionToken } from './common'
+
+const utc = require('dayjs/plugin/utc')
+dayjs.extend(utc)
 
 /** method to get user unique id, could be email, since it is unique */
 export function getUserId () {
@@ -79,8 +82,8 @@ export async function getActivities (body) {
   const token = getSessionToken()
   const limit = 100
   const fm = 'YYYY-MM-DD HH:mm'
-  const s = moment().add(-30, 'day').format(fm)
-  const e = moment().format(fm)
+  const s = dayjs().add(-30, 'day').format(fm)
+  const e = dayjs().format(fm)
   const url = `${host}/api/v1/activities?session_token=${token}&start_date=${s}&end_date=${e}&user_id=${uid}&include_duration=1&limit=${limit}`
   const res = await fetch.get(url)
   if (res && res.data) {
@@ -105,7 +108,7 @@ export async function getActivities (body) {
           note,
           due_time: dueTime,
           url: `${host}/activities/calendar/user/${uid}`,
-          time: moment(`${dueDate} ${dueTime}`, fm).valueOf()
+          time: dayjs(`${dueDate} ${dueTime}`, fm).valueOf()
         }
       })
   } else {
