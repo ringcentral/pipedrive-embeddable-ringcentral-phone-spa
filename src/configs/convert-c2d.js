@@ -14,7 +14,13 @@ export const phoneNumberSelectors = [
     shouldAct: (href) => {
       return /\/person\/\d+/.test(href)
     },
-    selector: '.fieldsList [data-test="phone-label"]'
+    selector: '.fieldsList [data-test="phone-number-button"]'
+  },
+  {
+    shouldAct: (href) => {
+      return /(\/persons)?\/list\/user\/(\d+)|everyone/.test(href)
+    },
+    selector: '[data-test="phone-number-button"]'
   },
   {
     shouldAct: (href) => {

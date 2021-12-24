@@ -53,7 +53,7 @@ export const insertClickToCallButton = [
     parentsToInsertButton: [
       {
         getElem: () => {
-          return document.querySelector('.viewContainer:not([style*="none"]) .detailView.personDetails .infoBlock .spacer')
+          return document.querySelector('.viewContainer:not([style*="none"]) .detailView.personDetails .infoBlock')
         },
         insertMethod: 'insertBefore'
       }
