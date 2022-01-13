@@ -157,7 +157,7 @@ export async function thirdPartyServiceConfig (serviceName) {
           type: 'rc-post-message-response',
           responseId: data.requestId,
           response: {
-            data: undefined
+            data: []
           }
         })
       }
