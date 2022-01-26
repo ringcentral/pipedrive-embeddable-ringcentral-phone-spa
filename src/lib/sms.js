@@ -15,6 +15,7 @@ const key = 'rc-smses'
 export default (props) => {
   const [smses, setSMSes] = useState([])
   const [sms, setSMS] = useState('')
+  const [smsTitle, setSMSTitle] = useState('')
   const [showModal, setShowModal] = useState(false)
   useEffect(() => {
     async function init () {
@@ -25,16 +26,18 @@ export default (props) => {
     return () => null
   }, [])
   function onSelect (v, opt) {
+    const { key } = opt
+    const obj = smses.find(s => s.id === key)
     if (props.path.startsWith('/composeText')) {
       window.rc.postMessage({
         type: 'rc-adapter-new-sms',
         phoneNumber: '',
-        text: opt.children
+        text: obj.sms
       })
     } else {
       window.rc.postMessage({
         type: 'rc-adapter-auto-populate-conversation',
-        text: opt.children
+        text: obj.sms
       })
     }
   }
@@ -52,19 +55,21 @@ export default (props) => {
   }
   function submit () {
     if (!sms) {
-      return message.warn('required')
+      return message.warn('sms required')
     }
     setSMSes(old => {
       const res = [
         ...old, {
           id: Math.random() + '',
-          sms
+          sms,
+          smsTitle
         }
       ]
       ls.set(key, res)
       return res
     })
     setSMS('')
+    setSMSTitle('')
   }
   const editIcon = (
     <PlusCircleOutlined
@@ -72,30 +77,45 @@ export default (props) => {
     />
   )
   const AddSMS = (
-    <div className='rc-pd1y'>
+    <div className='rc-pd1y rc-mg2b'>
       <div className='rc-sms-form'>
-        <Input
-          className='rc-sms-input'
-          value={sms}
-          onChange={e => setSMS(e.target.value)}
-        />
-        <span
-          className='rc-sms-add-btn'
-          onClick={submit}
-        >
-          <PlusCircleOutlined /> Add SMS
-        </span>
+        <div className='rc-sms-form'>
+          <Input
+            className='rc-sms-input'
+            value={smsTitle}
+            placeholder='SMS title'
+            onChange={e => setSMSTitle(e.target.value)}
+          />
+        </div>
+        <div className='rc-sms-form'>
+          <Input.TextArea
+            className='rc-sms-input'
+            value={sms}
+            rows={1}
+            placeholder='SMS'
+            onChange={e => setSMS(e.target.value)}
+          />
+          <span
+            className='rc-sms-add-btn'
+            onClick={submit}
+          >
+            <PlusCircleOutlined /> Add SMS
+          </span>
+        </div>
       </div>
     </div>
   )
   function renderSms (sms) {
     return (
       <div className='rc-pd1b' key={sms.id}>
-        {sms.sms || 'no sms'}
-        <CloseCircleOutlined
-          className='rc-del-sms'
-          onClick={() => delSms(sms)}
-        />
+        <p className='rc-fix'>
+          <b>{sms.smsTitle}</b>
+          <CloseCircleOutlined
+            className='rc-del-sms'
+            onClick={() => delSms(sms)}
+          />
+        </p>
+        <p>{sms.sms}</p>
       </div>
     )
   }
@@ -113,7 +133,7 @@ export default (props) => {
           smses.map(sms => {
             return (
               <Option key={sms.id} value={sms.id}>
-                {sms.sms}
+                {sms.smsTitle || sms.sms}
               </Option>
             )
           })
