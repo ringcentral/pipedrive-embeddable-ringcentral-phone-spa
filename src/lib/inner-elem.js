@@ -194,18 +194,17 @@ export default () => {
     return (
       <div className='rc-call-note-form'>
         <div className='pd1'>
-          <Tooltip overlayClassName='rc-toolt-tip-card' title='Note will synced with call log when call end'>
-            <TextArea
-              value={note}
-              style={{
-                width: 'calc(100% - 24px)',
-                marginLeft: '24px'
-              }}
-              rows={1}
-              placeholder='Take some notes'
-              onChange={handleChangeNote}
-            />
-          </Tooltip>
+          <TextArea
+            title='Note will synced with call log when call end'
+            value={note}
+            style={{
+              width: 'calc(100% - 24px)',
+              marginLeft: '24px'
+            }}
+            rows={1}
+            placeholder='Take some notes'
+            onChange={handleChangeNote}
+          />
           <Tooltip title='Hide form' overlayClassName='rc-toolt-tip-card'>
             <LeftCircleOutlined
               onClick={() => setState({
