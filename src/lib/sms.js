@@ -126,7 +126,7 @@ export default (props) => {
         suffixIcon={editIcon}
         showSearch
         placeholder='Select SMS'
-        style={{ width: '100%' }}
+        className='rc-sms-select'
         getPopupContainer={() => document.getElementById('Pipedrive-rc')}
       >
         {
