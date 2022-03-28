@@ -90,6 +90,12 @@ export async function syncCallLogToThirdParty (body) {
     Object.values(relatedContacts)
   )
   for (const c of relatedContacts) {
+    const key = buildKey(id, c.id)
+    const ig = await ls.get(key)
+    if (ig) {
+      console.log('exist', key)
+      continue
+    }
     const obj = {
       type: 'rc-init-call-log-form',
       isManuallySync,

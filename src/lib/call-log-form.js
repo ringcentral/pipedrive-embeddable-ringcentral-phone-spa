@@ -25,8 +25,8 @@ export default function CallLogForm (props) {
     note
   } = props.form
   const isCall = !!body.call
-  const timer = isCall ? 20000 : 100
-  const cls = isCall || isManuallySync ? 'rc-add-call-log-form' : 'rc-hide'
+  const timer = 20000
+  const cls = 'rc-add-call-log-form'
   function renderList () {
     const txt = relatedContacts.map(c => {
       return `${c.name}(${c.emails[0]})`
@@ -141,32 +141,26 @@ export default function CallLogForm (props) {
               {renderTime()}
             </ul>
             {renderNote()}
-            {
-              isCall
-                ? (
-                  <FormItem
-                    name='deal'
-                    label='Sync to deal'
-                  >
-                    <Select
-                      getPopupContainer={getBox}
-                      placeholder='Select deal'
-                      onClick={removeCountDown}
-                    >
-                      {
-                        deals.map(obj => {
-                          return (
-                            <Option value={obj.id} key={obj.id}>
-                              {obj.title}
-                            </Option>
-                          )
-                        })
-                      }
-                    </Select>
-                  </FormItem>
-                  )
-                : null
-            }
+            <FormItem
+              name='deal'
+              label='Sync to deal'
+            >
+              <Select
+                getPopupContainer={getBox}
+                placeholder='Select deal'
+                onClick={removeCountDown}
+              >
+                {
+                  deals.map(obj => {
+                    return (
+                      <Option value={obj.id} key={obj.id}>
+                        {obj.title}
+                      </Option>
+                    )
+                  })
+                }
+              </Select>
+            </FormItem>
             <Button
               type='primary'
               htmlType='submit'
