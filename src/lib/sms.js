@@ -32,6 +32,7 @@ export default (props) => {
       window.rc.postMessage({
         type: 'rc-adapter-new-sms',
         phoneNumber: '',
+        conversation: true,
         text: obj.sms
       })
     } else {
