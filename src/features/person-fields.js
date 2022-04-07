@@ -633,9 +633,9 @@ async function getPersonFields () {
 
 export default async () => {
   const arr = await getPersonFields()
-  const emailFiled = arr.find(a => a.key === 'email')
-  if (emailFiled && emailFiled.id) {
-    return emailFiled.id
+  const nameField = arr.find(a => a.key === 'id')
+  if (nameField && nameField.id) {
+    return nameField.id
   } else {
     notify('Can not sync log to deal, due to no email person field', 10000)
   }

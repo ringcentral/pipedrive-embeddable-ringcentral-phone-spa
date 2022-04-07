@@ -28,7 +28,7 @@ export async function addFilter (contact) {
               object: 'person',
               field_id: fid,
               operator: '=',
-              value: contact.emails[0],
+              value: contact.id,
               extra_value: null
             }
           ]
