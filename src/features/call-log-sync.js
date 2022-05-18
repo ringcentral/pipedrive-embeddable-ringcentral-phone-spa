@@ -89,6 +89,9 @@ export async function syncCallLogToThirdParty (body) {
   relatedContacts = _.flatten(
     Object.values(relatedContacts)
   )
+  if (!relatedContacts || !relatedContacts.length) {
+    return false
+  }
   for (const c of relatedContacts) {
     const key = buildKey(id, c.id)
     const ig = await ls.get(key)
@@ -281,9 +284,7 @@ async function doSyncOne (contact, body, formData, isManuallySync) {
       contactId: id
     }]
   }
-  if (!isManuallySync) {
-    mainBody = await filterLoggered(mainBody)
-  }
+  mainBody = await filterLoggered(mainBody)
   const descFormatted = (desc || '')
     .split('\n')
     .map(d => `<p>${d}</p>`)

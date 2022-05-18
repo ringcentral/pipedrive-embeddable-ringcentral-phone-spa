@@ -107,6 +107,34 @@ export const getContact = async function (start = 0) {
   return fetch.get(url)
 }
 
+function getOneContact (id) {
+  const token = getSessionToken()
+  // let self = await getSelfInfo(token)
+  // let uid = self.data.id
+  const url = `${host}/api/v1/persons/${id}?session_token=${token}&strict_mode=true&user_id=&label=&type=person&_=${+new Date()}`
+  return fetch.get(url)
+}
+
+export async function syncCurrentContact () {
+  console.log('try sync current contact')
+  const url = window.location.href
+  const reg = /\/person\/(\d+)(.+)?/
+  const arr = url.match(reg)
+  if (!arr || arr.length < 2) {
+    return false
+  }
+  const id = arr[1]
+  const contactData = await getOneContact(id)
+  const fmt = await formatData({
+    data: [
+      contactData.data
+    ]
+  })
+  console.log('try sync current contact data', fmt)
+  await insert(fmt).catch(console.debug)
+  notifyReSyncContacts()
+}
+
 async function fetchAllContacts (_recent) {
   if (!window.rc.userAuthed) {
     showAuthBtn()

@@ -5,7 +5,7 @@
 import { useEffect } from 'react'
 import { Modal, Button, notification } from 'antd'
 import { SyncOutlined, InfoCircleOutlined } from '@ant-design/icons'
-import { reSyncData } from '../features/contacts'
+import { reSyncData, syncCurrentContact } from '../features/contacts'
 import './antd.less'
 import 'antd/dist/antd.less'
 import { doAuth } from '../features/auth'
@@ -148,7 +148,24 @@ export default () => {
       showAuthPanel()
     }
   }
+  window.rc.currentPage = window.location.href
+  function watchUrlChange () {
+    // listen for changes
+    setInterval(() => {
+      if (window.rc.currentPage !== window.location.href) {
+        // page has changed, set new page as 'current'
+        syncCurrentContact()
+        window.rc.currentPage = window.location.href
+      }
+    }, 1000)
+  }
   useEffect(() => {
+    syncCurrentContact()
+    watchUrlChange()
+    window.addEventListener('popstate', function (event) {
+      // The URL changed...
+      syncCurrentContact()
+    })
     window.addEventListener('message', onEvent)
     return () => {
       window.removeEventListener('message', onEvent)
