@@ -637,6 +637,6 @@ export default async () => {
   if (nameField && nameField.id) {
     return nameField.id
   } else {
-    notify('Can not sync log to deal, due to no email person field', 10000)
+    notify('Can not sync log to deal, due to no id person field', 10000)
   }
 }

@@ -1,16 +1,8 @@
 module.exports = {
   presets: [
-    '@babel/preset-react',
-    ['@babel/env', {
-      targets: {
-        chrome: 87,
-        node: 'current'
-      }
-    }]
+    '@babel/preset-react'
   ],
   plugins: [
-    '@babel/plugin-proposal-class-properties',
-    '@babel/plugin-syntax-dynamic-import',
     'babel-plugin-lodash',
     [
       'import',
@@ -18,7 +10,6 @@ module.exports = {
         libraryName: 'antd',
         style: true
       }
-    ],
-    '@babel/plugin-transform-runtime'
+    ]
   ]
 }

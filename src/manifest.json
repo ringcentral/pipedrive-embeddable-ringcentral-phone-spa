@@ -1,31 +1,26 @@
 {
-  "name": "Ringcentral Embeddable Widgets for Pipedrive",
-  "version": "3.6.7",
-  "description": "Add RingCentral Embeddable Voice widgets to Pipedrive",
+  "name": "RingCentral for PipeDrive (community)",
+  "version": "4.0.0",
+  "description": "Add RingCentral Embeddable widgets to Pipedrive",
+  "author": "Drake Zhao <drake.zhao@ringcentral.com>",
+  "homepage_url": "https://github.com/ringcentral/pipedrive-embeddable-ringcentral-phone-spa",
+  "minimum_chrome_version": "88",
+  "update_url": "https://github.com/ringcentral/pipedrive-embeddable-ringcentral-phone-spa/releases/latest",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1YqYvCEeGGNOgtKrx8DfG33ujx7NgAwbyVpikug4mHiNvKZYWulw7lY5fjaD8wAy5bmXnkfULDzqMkL8UOxUcf8qD2lJFcLm+BqBtqNnoSz00vwjSOxXrcDvpvsMrjEZkI7N/FD60sTWp1U+QOehua7OboUpXb4iV7TQfppz3PsCz7qGOa4PWjUMAZTTgomUtW47Es6f/vjIeejs7Ihro3Al5Jo3SWIbjpjSU9BK34XgFvtcZx3lZQgfFiK+ZNyxlx8mgC/PLqJB+uX63ywMrT86TdcfxBuaThy98S8SCXjZTpHOP6X5pmGMk0lPM06hwxmSCBZgHOHL/Wk6r8FUlQIDAQAB",
   "permissions": [
-    "http://*/",
-    "https://*/",
     "storage",
     "activeTab",
     "tabs",
-    "background",
-    "tabCapture",
-    "system.display",
-    "unlimitedStorage",
-    "https://*.pipedrive.com/*",
-    "https://kocm6omq0b.execute-api.us-east-1.amazonaws.com/*",
-    "https://*.gtihub.io/*",
-    "https://*.ringcentral.com/*"
+    "unlimitedStorage"
   ],
-  "page_action": {
+  "action": {
     "default_icon": {
       "16": "icons/rc16.png",
       "32": "icons/rc32.png",
       "48": "icons/rc48.png",
       "128": "icons/rc128.png"
     },
-    "default_title": "PipeDrive embeddable RingCentral phone"
+    "default_title": "RingCentral for PipeDrive (community)"
   },
   "icons": {
     "16": "icons/rc16.png",
@@ -34,27 +29,29 @@
     "128": "icons/rc128.png"
   },
   "web_accessible_resources": [
-    "embeddable/**"
+    {
+      "resources": ["embeddable/**"]
+    }
   ],
   "content_scripts": [
     {
       "matches": [
         "https://*.pipedrive.com/*"
       ],
-      "exclude_matches": [],
+      "exclude_matches": [
+        "https://oauth.pipedrive.com/*",
+        "https://developers.pipedrive.com/*",
+        "https://devcommunity.pipedrive.com/*",
+        "https://support.pipedrive.com/*",
+        "https://www.pipedrive.com/*"
+      ],
       "js": [
-        "./react.production.min.js",
-        "./react-dom.production.min.js",
         "./content.js"
       ]
     }
   ],
-  "background": {
-    "scripts": [
-      "background.js"
-    ],
-    "persistent": true
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' chrome-extension://mghgakfckjffpapcfagahoabncnoajpi/embeddable; object-src 'self'"
   },
-  "content_security_policy": "script-src 'self' chrome-extension://mghgakfckjffpapcfagahoabncnoajpi/embeddable; object-src 'self'",
-  "manifest_version": 2
+  "manifest_version": 3
 }
