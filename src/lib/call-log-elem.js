@@ -6,9 +6,38 @@ import { useState, useEffect } from 'react'
 import _ from 'lodash'
 import CallLogForm from './call-log-form'
 import copy from 'json-deep-copy'
+import Drag from 'react-draggable'
+import classNames from 'classnames'
+import { DownOutlined, UpOutlined } from '@ant-design/icons'
 
 export default function CallLogElem () {
   const [forms, setStateOri] = useState([])
+  const [minimized, setMini] = useState(false)
+
+  function show () {
+    setMini(false)
+  }
+
+  function hide () {
+    setMini(true)
+  }
+
+  function renderControl () {
+    if (minimized) {
+      return (
+        <UpOutlined
+          className='rc-pointer'
+          onClick={show}
+        />
+      )
+    }
+    return (
+      <DownOutlined
+        className='rc-pointer'
+        onClick={hide}
+      />
+    )
+  }
   function update (id, data) {
     setStateOri(s => {
       const arr = copy(s)
@@ -51,14 +80,38 @@ export default function CallLogElem () {
   if (!forms.length) {
     return null
   }
-  return forms.map(form => {
-    return (
-      <CallLogForm
-        form={form}
-        key={form.id}
-        update={update}
-        remove={remove}
-      />
-    )
-  })
+  const cls = classNames(
+    'rc-log-sync-wrap',
+    {
+      minimized
+    }
+  )
+  return (
+    <Drag>
+      <div className={cls}>
+        <div className='rc-log-sync-title rc-fix'>
+          <span className='rc-fleft'>
+            Syncing {forms.length} activities
+          </span>
+          <span className='rc-fright'>
+            {renderControl()}
+          </span>
+        </div>
+        <div className='rc-log-sync-body'>
+          {
+            forms.map(form => {
+              return (
+                <CallLogForm
+                  form={form}
+                  key={form.id}
+                  update={update}
+                  remove={remove}
+                />
+              )
+            })
+          }
+        </div>
+      </div>
+    </Drag>
+  )
 }

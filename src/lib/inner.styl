@@ -32,5 +32,30 @@
   width 100%
   background #fff
   height calc(100% - 35px)
-  top 35px
+  top 0
   bottom 0
+
+.rc-log-sync-wrap
+  position fixed
+  bottom 0
+  left 200px
+  width 300px
+  height 500px
+  z-index 12000
+  background #fff
+  border-top 1px solid #eee
+  border-radius 3px
+  box-shadow 0px 0px 5px 1px rgb(0 0 0 / 18%)
+  &.minimized
+    height 35px
+    .rc-log-sync-body
+      display none
+.rc-log-sync-title
+  height 35px
+  line-height 35px
+  padding 0 10px
+  border-bottom 1px solid #eee
+.rc-log-sync-body
+  height 465px
+  position relative
+

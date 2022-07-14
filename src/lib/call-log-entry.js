@@ -15,7 +15,7 @@ export default () => {
     return
   }
   rootElement = createElementFromHTML(`<div id="${id}"></div>`)
-  const home = document.getElementById('Pipedrive-rc')
+  const home = document.body
   home.appendChild(rootElement)
   render(
     <App />,

@@ -1,6 +1,6 @@
 {
   "name": "pipedrive-embeddable-ringcentral-phone-spa",
-  "version": "3.6.7",
+  "version": "3.6.8",
   "description": "Add RingCentral Embeddable Voice widgets to Pipedrive",
   "keywords": [
     "RingCentral",
@@ -48,6 +48,7 @@
     "babel-plugin-import": "1.13.3",
     "babel-plugin-lodash": "3.3.4",
     "blueimp-md5": "2.19.0",
+    "classnames": "^2.3.1",
     "concat-loader": "0.1.0",
     "copy-webpack-plugin": "10.0.0",
     "cross-env": "7.0.3",
@@ -70,7 +71,7 @@
     "react": "17.0.2",
     "react-delta": "1.1.2",
     "react-dom": "17.0.2",
-    "react-draggable": "4.4.4",
+    "react-draggable": "^4.4.4",
     "recursive-assign": "0.2.0",
     "replace-in-file": "6.3.2",
     "ringcentral-embeddable-extension-common": "^0.12.3",
@@ -90,6 +91,5 @@
     "globals": [
       "chrome"
     ]
-  },
-  "dependencies": {}
+  }
 }
