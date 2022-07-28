@@ -2,7 +2,7 @@
  * handle login event
  */
 
-import { envs, sendMsgToRCIframe } from 'ringcentral-embeddable-extension-common'
+import { envs, sendMsgToRCIframe, postMessage } from 'ringcentral-embeddable-extension-common'
 import { actions } from '../common/common.js'
 
 const {

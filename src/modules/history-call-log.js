@@ -17,15 +17,18 @@ import cachedSearch, { searchPhone } from './search.js'
 import { ls, format164 } from 'ringcentral-embeddable-extension-common'
 
 export default class HistoryCallLogCheck extends Component {
-  state = {
-    oid: '',
-    contact: null,
-    logs: [],
-    callLogs: [],
-    callLogsSelected: [],
-    loadingCallLogs: false,
-    submitting: false,
-    visible: false
+  constructor () {
+    super()
+    this.state = {
+      oid: '',
+      contact: null,
+      logs: [],
+      callLogs: [],
+      callLogsSelected: [],
+      loadingCallLogs: false,
+      submitting: false,
+      visible: false
+    }
   }
 
   componentDidMount () {

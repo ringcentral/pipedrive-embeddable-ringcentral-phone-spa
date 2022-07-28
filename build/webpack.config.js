@@ -1,5 +1,4 @@
 const {
-  env,
   minimize,
   envs
 } = require('./common.js')
