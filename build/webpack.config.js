@@ -1,28 +1,28 @@
-require('dotenv').config()
+const {
+  env,
+  minimize,
+  envs
+} = require('./common.js')
 const AntdDayjsWebpackPlugin = require('@electerm/antd-dayjs-webpack-plugin')
 const LodashModuleReplacementPlugin = require('lodash-webpack-plugin')
-const { identity } = require('lodash')
+const _ = require('lodash')
 const path = require('path')
 const {
   stylusSettingPlugin
-} = require('./plugins')
-const rules = require('./rules')
+} = require('./plugins.js')
+const rules = require('./rules.js')
 const webpack = require('webpack')
-const env = require('./config')
-const {
-  version
-} = require('./common')
-const copy = require('./copy')
+const { copy } = require('./copy.js')
 
+const cwd = process.cwd()
 const config = {
   mode: 'production',
   entry: {
     content: './src/content.js',
-    background: './src/background.js',
     manifest: './src/manifest.json'
   },
   output: {
-    path: path.resolve(__dirname, '../dist'),
+    path: path.resolve(cwd, 'dist'),
     filename: '[name].js',
     publicPath: '/',
     chunkFilename: '[name].[hash].js',
@@ -35,15 +35,16 @@ const config = {
   },
   target: 'web',
   resolve: {
+    fullySpecified: false,
     extensions: ['.js', '.json'],
     alias: {
-      'antd/dist/antd.less$': path.resolve(__dirname, '../src/lib/antd.less')
+      'antd/dist/antd.less$': path.resolve(cwd, 'src/lib/antd.less')
     }
   },
   resolveLoader: {
     modules: [
-      path.join(process.cwd(), 'node_modules/ringcentral-embeddable-extension-common/loaders'),
-      path.join(process.cwd(), 'node_modules')
+      path.join(cwd, 'node_modules/ringcentral-embeddable-extension-common/loaders'),
+      path.join(cwd, 'node_modules')
     ]
   },
   module: {
@@ -51,7 +52,7 @@ const config = {
   },
   devtool: 'source-map',
   optimization: {
-    minimize: env.minimize
+    minimize
   },
   plugins: [
     stylusSettingPlugin,
@@ -62,11 +63,9 @@ const config = {
     copy,
     new AntdDayjsWebpackPlugin(),
     new webpack.DefinePlugin({
-      'process.env.ringCentralConfigs': JSON.stringify(env.ringCentralConfigs),
-      'process.env.thirdPartyConfigs': JSON.stringify(env.thirdPartyConfigs),
-      'process.env.version': JSON.stringify(version)
+      'process.env.envs': JSON.stringify(envs)
     })
-  ].filter(identity)
+  ].filter(_.identity)
 }
 
 module.exports = config

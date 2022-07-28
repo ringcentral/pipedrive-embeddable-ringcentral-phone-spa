@@ -8,7 +8,7 @@
  */
 
 // modify phone number text to click-to-call link
-export const phoneNumberSelectors = [
+export const tooltipConfigs = [
   /// * example config
   {
     shouldAct: (href) => {

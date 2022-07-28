@@ -1,29 +1,30 @@
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const { resolve } = require('path')
 
+const cwd = process.cwd()
 const from = resolve(
-  __dirname,
-  '../node_modules/ringcentral-embeddable-extension-common/src/icons'
+  cwd,
+  'node_modules/ringcentral-embeddable-extension-common/src/icons'
 )
 const to1 = resolve(
-  __dirname,
-  '../dist/icons'
+  cwd,
+  'dist/icons'
 )
 // const f2 = resolve(
-//   __dirname,
-//   '../node_modules/jsstore/dist/jsstore.min.js'
+//   cwd,
+//   'node_modules/jsstore/dist/jsstore.min.js'
 // )
 const f31 = resolve(
-  __dirname,
-  '../node_modules/react/umd/react.production.min.js'
+  cwd,
+  'node_modules/react/umd/react.production.min.js'
 )
 const f32 = resolve(
-  __dirname,
-  '../node_modules/react-dom/umd/react-dom.production.min.js'
+  cwd,
+  'node_modules/react-dom/umd/react-dom.production.min.js'
 )
 const to4 = resolve(
-  __dirname,
-  '../dist'
+  cwd,
+  'dist'
 )
 const patterns = [{
   from,
@@ -55,4 +56,5 @@ const patterns = [{
 const copy = new CopyWebpackPlugin({
   patterns
 })
-module.exports = copy
+
+exports.copy = copy

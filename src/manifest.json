@@ -30,7 +30,8 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["embeddable/**"]
+      "resources": ["/embeddable/*"],
+      "matches": ["https://*.pipedrive.com/*"]
     }
   ],
   "content_scripts": [
@@ -46,12 +47,11 @@
         "https://www.pipedrive.com/*"
       ],
       "js": [
+        "react.production.min.js",
+        "react-dom.production.min.js",
         "./content.js"
       ]
     }
   ],
-  "content_security_policy": {
-    "extension_pages": "script-src 'self' chrome-extension://mghgakfckjffpapcfagahoabncnoajpi/embeddable; object-src 'self'"
-  },
   "manifest_version": 3
 }

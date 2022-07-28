@@ -1,7 +1,7 @@
 
 module.exports = [
   {
-    test: /manifest\.json$|manifest-firefox\.json$/,
+    test: /manifest\.json$/,
     use: [
       'manifest-loader'
     ]
