@@ -18,7 +18,7 @@ const {
 let appConfigQuery = ''
 const { serviceName } = thirdPartyConfigs
 if (clientID || appServer) {
-  appConfigQuery = `?appVersion=${appVersion}&zIndex=9999&prefix=${serviceName}-rc&newAdapterUI=1&disconnectInactiveWebphone=1&userAgent=${serviceName}_extension%2F${appVersion}&disableActiveCallControl=false&appKey=${clientID}&appSecret=${clientSecret}&appServer=${encodeURIComponent(appServer)}`
+  appConfigQuery = `?appVersion=${appVersion}&zIndex=9999&prefix=${serviceName}-rc&newAdapterUI=1&disconnectInactiveWebphone=1&userAgent=${serviceName}_extension%2F${appVersion}&disableActiveCallControl=false&appKey=${clientID}&appSecret=${clientSecret}&appServer=${encodeURIComponent(appServer)}&enableRingtoneSettings=1`
 }
 
 /* eslint-disable-next-line */

@@ -36,7 +36,7 @@ function showSyncMenu () {
   }
   const content = (
     <div>
-      <div className='rc-pd2b'>After Sync contacts, conatacts data will update, so auto call log can match right contacts, you could choose sync only recent updated/created contacts or sync all contacts.</div>
+      <div className='rc-pd2b'>After Sync contacts, contacts data will update, so auto call log can match right contacts, you could choose sync only recent updated/created contacts or sync all contacts.</div>
       <div>
         <Button
           type='primary'
