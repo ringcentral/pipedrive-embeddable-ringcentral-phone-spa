@@ -74,7 +74,8 @@ export async function syncCallLogToThirdParty (body) {
   // }
   const isManuallySync = !body.triggerType || body.triggerType === 'manual'
   const isAutoSync = body.triggerType === 'callLogSync' || body.triggerType === 'auto'
-  if (!isAutoSync && !isManuallySync) {
+  const activeCallEnd = body.triggerType === 'presenceUpdate' && body.call.result === 'Disconnected';
+  if (!isAutoSync && !isManuallySync && !activeCallEnd) {
     return
   }
   if (_.get(body, 'sessionIds')) {
