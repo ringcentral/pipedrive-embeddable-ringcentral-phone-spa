@@ -149,6 +149,8 @@ export default function CallLogForm (props) {
                 getPopupContainer={getBox}
                 placeholder='Select deal'
                 onClick={removeCountDown}
+                defaultOpen
+                defaultValue={deals ?? deals[0].id}
               >
                 {
                   deals.map(obj => {
