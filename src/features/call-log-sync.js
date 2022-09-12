@@ -59,8 +59,8 @@ const userId = getUserId()
 
 function buildId (body) {
   return body.id ||
-  _.get(body, 'call.sessionId') ||
-  _.get(body, 'conversation.conversationLogId')
+    _.get(body, 'call.sessionId') ||
+    _.get(body, 'conversation.conversationLogId')
 }
 
 /**
@@ -74,7 +74,8 @@ export async function syncCallLogToThirdParty (body) {
   // }
   const isManuallySync = !body.triggerType || body.triggerType === 'manual'
   const isAutoSync = body.triggerType === 'callLogSync' || body.triggerType === 'auto'
-  if (!isAutoSync && !isManuallySync) {
+  const activeCallEnd = body.triggerType === 'presenceUpdate' && body.call.result === 'Disconnected'
+  if (!isAutoSync && !isManuallySync && !activeCallEnd) {
     return
   }
   if (_.get(body, 'sessionIds')) {
@@ -83,7 +84,16 @@ export async function syncCallLogToThirdParty (body) {
   if (!window.rc.userAuthed) {
     return isManuallySync ? showAuthBtn() : null
   }
-  const id = buildId(body)
+  const targetIds = []
+  if (body.conversation) {
+    for (const message of body.conversation.messages) {
+      const messageId = buildId(message)
+      targetIds.push(messageId)
+    }
+  } else {
+    const callId = buildId(body)
+    targetIds.push(callId)
+  }
   const info = getContactInfo(body)
   let relatedContacts = await match(info.numbers)
   relatedContacts = _.flatten(
@@ -93,36 +103,38 @@ export async function syncCallLogToThirdParty (body) {
     return false
   }
   for (const c of relatedContacts) {
-    const key = buildKey(id, c.id)
-    const ig = await ls.get(key)
-    if (ig) {
-      console.log('exist', key)
-      continue
-    }
-    const obj = {
-      type: 'rc-init-call-log-form',
-      isManuallySync,
-      callLogProps: {
-        relatedContacts: [c],
-        info,
-        id,
+    for (const id of targetIds) {
+      const key = buildKey(id, c.id)
+      const ig = await ls.get(key)
+      if (ig) {
+        continue
+      }
+
+      const obj = {
+        type: 'rc-init-call-log-form',
         isManuallySync,
-        body
+        callLogProps: {
+          relatedContacts: [c],
+          info,
+          id,
+          isManuallySync,
+          body
+        }
       }
-    }
-    if (isManuallySync) {
-      if (
-        !relatedContacts ||
-        !relatedContacts.length
-      ) {
-        const b = copy(body)
-        Object.assign(b, info)
-        b.type = 'rc-show-add-contact-panel'
-        return window.postMessage(b, '*')
+      if (isManuallySync) {
+        if (
+          !relatedContacts ||
+          !relatedContacts.length
+        ) {
+          const b = copy(body)
+          Object.assign(b, info)
+          b.type = 'rc-show-add-contact-panel'
+          return window.postMessage(b, '*')
+        }
+        window.postMessage(obj, '*')
+      } else {
+        window.postMessage(obj, '*')
       }
-      window.postMessage(obj, '*')
-    } else {
-      window.postMessage(obj, '*')
     }
   }
 }
