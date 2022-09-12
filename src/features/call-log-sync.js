@@ -57,7 +57,7 @@ const userId = getUserId()
 //   }
 // }
 
-function buildId(body) {
+function buildId (body) {
   return body.id ||
     _.get(body, 'call.sessionId') ||
     _.get(body, 'conversation.conversationLogId')
@@ -67,14 +67,14 @@ function buildId(body) {
  * sync call log from ringcentral widgets to third party CRM site
  * @param {*} body
  */
-export async function syncCallLogToThirdParty(body) {
+export async function syncCallLogToThirdParty (body) {
   // let result = _.get(body, 'call.result')
   // if (result !== 'Call connected') {
   //   return
   // }
   const isManuallySync = !body.triggerType || body.triggerType === 'manual'
   const isAutoSync = body.triggerType === 'callLogSync' || body.triggerType === 'auto'
-  const activeCallEnd = body.triggerType === 'presenceUpdate' && body.call.result === 'Disconnected';
+  const activeCallEnd = body.triggerType === 'presenceUpdate' && body.call.result === 'Disconnected'
   if (!isAutoSync && !isManuallySync && !activeCallEnd) {
     return
   }
@@ -84,16 +84,15 @@ export async function syncCallLogToThirdParty(body) {
   if (!window.rc.userAuthed) {
     return isManuallySync ? showAuthBtn() : null
   }
-  const targetIds = [];
+  const targetIds = []
   if (body.conversation) {
     for (const message of body.conversation.messages) {
-      const messageId = buildId(message);
-      targetIds.push(messageId);
+      const messageId = buildId(message)
+      targetIds.push(messageId)
     }
-  }
-  else {
-    const callId = buildId(body);
-    targetIds.push(callId);
+  } else {
+    const callId = buildId(body)
+    targetIds.push(callId)
   }
   const info = getContactInfo(body)
   let relatedContacts = await match(info.numbers)
@@ -108,7 +107,7 @@ export async function syncCallLogToThirdParty(body) {
       const key = buildKey(id, c.id)
       const ig = await ls.get(key)
       if (ig) {
-        continue;
+        continue
       }
 
       const obj = {
@@ -147,7 +146,7 @@ export async function syncCallLogToThirdParty(body) {
  * @param {*} body
  * @param {*} formData
  */
-export async function doSync(
+export async function doSync (
   body,
   formData,
   isManuallySync,
@@ -162,7 +161,7 @@ export async function doSync(
   }
 }
 
-function buildMsgs(body, contactId) {
+function buildMsgs (body, contactId) {
   const msgs = _.get(body, 'conversation.messages')
   const arr = []
   for (const m of msgs) {
@@ -195,7 +194,7 @@ function buildMsgs(body, contactId) {
   return arr
 }
 
-function buildVoiceMailMsgs(body, contactId) {
+function buildVoiceMailMsgs (body, contactId) {
   const msgs = _.get(body, 'conversation.messages')
   const arr = []
   for (const m of msgs) {
@@ -218,16 +217,16 @@ function buildVoiceMailMsgs(body, contactId) {
   return arr
 }
 
-function buildKey(id, cid) {
+function buildKey (id, cid) {
   return `rc-log-${userId}-${id}-${cid}`
 }
 
-async function saveLog(id, cid, engageId) {
+async function saveLog (id, cid, engageId) {
   const key = buildKey(id, cid)
   await ls.set(key, engageId)
 }
 
-async function filterLoggered(arr) {
+async function filterLoggered (arr) {
   const res = []
   for (const m of arr) {
     const key = buildKey(m.id, m.contactId)
@@ -246,7 +245,7 @@ async function filterLoggered(arr) {
  * @param {*} body
  * @param {*} formData
  */
-async function doSyncOne(contact, body, formData, isManuallySync) {
+async function doSyncOne (contact, body, formData, isManuallySync) {
   const { id, org_id: oid } = contact
   let desc = formData.description
   const sid = _.get(body, 'call.telephonySessionId') || 'not-exist'
